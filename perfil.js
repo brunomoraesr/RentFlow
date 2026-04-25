@@ -66,9 +66,10 @@ async function init() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
 
+  const userId = session.user.id;
   const [{ data: propsRaw }, { data: bkRaw }] = await Promise.all([
-    db.from('properties').select('*'),
-    db.from('bookings').select('*').order('checkin'),
+    db.from('properties').select('*').eq('user_id', userId),
+    db.from('bookings').select('*').eq('user_id', userId).order('checkin'),
   ]);
 
   allProperties = propsRaw || [];
@@ -105,7 +106,9 @@ async function init() {
 // REFRESH — re-busca dados do Supabase (usado ao voltar para a aba)
 // ─────────────────────────────────────────────────────────────────────────────
 async function refreshData() {
-  const { data: bkRaw } = await db.from('bookings').select('*').order('checkin');
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+  const { data: bkRaw } = await db.from('bookings').select('*').eq('user_id', session.user.id).order('checkin');
   allBookings = (bkRaw || []).map(mapBooking);
   try { cleaning = JSON.parse(localStorage.getItem('rental_cleaning_expenses') || '[]'); } catch { cleaning = []; }
   buildYearSelect();

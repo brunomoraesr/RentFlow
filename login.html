@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="variables.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   <script src="services/supabaseClient.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -576,11 +577,11 @@
 
         <div class="field">
           <label>E-mail</label>
-          <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email" />
+          <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email" maxlength="254" />
         </div>
         <div class="field">
           <label>Senha</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') handleLogin()" />
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" maxlength="128" onkeydown="if(event.key==='Enter') handleLogin()" />
           <div class="capslock-warn" id="capsWarnLogin">⇪ CapsLock ativado</div>
         </div>
 
@@ -807,8 +808,19 @@
     document.getElementById(id).classList.remove('visible');
   }
 
+  let _loginAttempts = 0;
+  let _loginLockedUntil = 0;
+
   async function handleLogin() {
     clearError('loginError');
+
+    const now = Date.now();
+    if (now < _loginLockedUntil) {
+      const remaining = Math.ceil((_loginLockedUntil - now) / 1000);
+      showError('loginError', `Muitas tentativas. Aguarde ${remaining} segundos.`);
+      return;
+    }
+
     const email    = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
@@ -819,14 +831,22 @@
     setLoading('btnLogin', false);
 
     if (error) {
+      _loginAttempts++;
+      if (_loginAttempts >= 5) {
+        _loginLockedUntil = Date.now() + 30000;
+        _loginAttempts = 0;
+        showError('loginError', 'Muitas tentativas incorretas. Aguarde 30 segundos.');
+        return;
+      }
       const msgs = {
         'Invalid login credentials': 'E-mail ou senha incorretos.',
         'Email not confirmed': 'Confirme seu e-mail antes de entrar.',
       };
-      showError('loginError', msgs[error.message] || error.message);
+      showError('loginError', msgs[error.message] || 'Falha ao autenticar. Tente novamente.');
       return;
     }
 
+    _loginAttempts = 0;
     window.location.href = 'index.html';
   }
 
@@ -852,7 +872,7 @@
 
     if (error) {
       const msgs = { 'User already registered': 'Este e-mail já está cadastrado. Faça login.' };
-      showError('regError', msgs[error.message] || error.message);
+      showError('regError', msgs[error.message] || 'Erro ao criar conta. Tente novamente.');
       return;
     }
 
@@ -889,7 +909,7 @@
     setLoading('btnForgot', false);
 
     if (error) {
-      showError('forgotError', error.message);
+      showError('forgotError', 'Erro ao enviar o link. Verifique o e-mail e tente novamente.');
       return;
     }
 
@@ -912,7 +932,7 @@
     setLoading('btnReset', false);
 
     if (error) {
-      showError('resetError', error.message);
+      showError('resetError', 'Erro ao atualizar senha. Tente novamente.');
       return;
     }
 

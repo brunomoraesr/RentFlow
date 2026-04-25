@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="variables.css" />
   <link rel="stylesheet" href="App.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   <script src="services/supabaseClient.js"></script>
 </head>
 <body>
@@ -291,7 +292,7 @@
 
       <div class="form-field full" id="fieldGuest">
         <label class="form-label">Hóspede <span>*</span></label>
-        <input class="form-input" id="guestName" type="text" placeholder="Nome do hóspede" />
+        <input class="form-input" id="guestName" type="text" placeholder="Nome do hóspede" maxlength="100" />
       </div>
 
       <div class="form-field">
@@ -322,7 +323,7 @@
 
       <div class="form-field full">
         <label class="form-label">Observações</label>
-        <textarea class="form-textarea" id="bookingNotes" placeholder="Notas sobre a reserva..."></textarea>
+        <textarea class="form-textarea" id="bookingNotes" placeholder="Notas sobre a reserva..." maxlength="500"></textarea>
       </div>
     </div>
 
@@ -388,12 +389,12 @@
 
       <div class="form-field full">
         <label class="form-label">Nome do imóvel <span>*</span></label>
-        <input class="form-input" id="propName" type="text" placeholder="Ex: Casa da Praia" />
+        <input class="form-input" id="propName" type="text" placeholder="Ex: Casa da Praia" maxlength="100" />
       </div>
 
       <div class="form-field full">
         <label class="form-label">Localização</label>
-        <input class="form-input" id="propLocation" type="text" placeholder="Ex: Florianópolis, SC" />
+        <input class="form-input" id="propLocation" type="text" placeholder="Ex: Florianópolis, SC" maxlength="100" />
       </div>
     </div>
 
@@ -432,7 +433,7 @@
     <div class="form-grid">
       <div class="form-field full">
         <label class="form-label">Quem realizou a limpeza</label>
-        <input class="form-input" id="cleanerName" type="text" placeholder="Nome da funcionária" />
+        <input class="form-input" id="cleanerName" type="text" placeholder="Nome da funcionária" maxlength="100" />
       </div>
 
       <div class="form-field">
@@ -447,7 +448,7 @@
 
       <div class="form-field full">
         <label class="form-label">Observações</label>
-        <textarea class="form-textarea" id="cleaningNotes" placeholder="Notas sobre a limpeza..."></textarea>
+        <textarea class="form-textarea" id="cleaningNotes" placeholder="Notas sobre a limpeza..." maxlength="500"></textarea>
       </div>
     </div>
 
@@ -466,6 +467,7 @@
 
 <script>
   // ── ESTADO ──────────────────────────────────────────────────────────────────
+  let CURRENT_USER_ID = null;
   let PROPERTIES = [];
 
   let bookings          = [];
@@ -487,6 +489,7 @@
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
 
+    CURRENT_USER_ID = session.user.id;
     const email = session.user.email;
     document.getElementById('userEmail').textContent = email.length > 24 ? email.slice(0,22)+'…' : email;
     document.getElementById('userAvatar').textContent = email.charAt(0).toUpperCase();
@@ -509,14 +512,14 @@
   }
 
   async function loadProperties() {
-    const { data, error } = await db.from('properties').select('*').order('created_at');
+    const { data, error } = await db.from('properties').select('*').eq('user_id', CURRENT_USER_ID).order('created_at');
     if (error) { showToast('Erro ao carregar imóveis.', 'error'); return; }
     PROPERTIES = (data || []).map(p => ({ id:p.id, name:p.name, type:p.type, loc:p.location, icon:p.icon, bg:p.bg_color }));
     currentPropIdx = 0;
   }
 
   async function loadBookings() {
-    const { data, error } = await db.from('bookings').select('*').order('checkin');
+    const { data, error } = await db.from('bookings').select('*').eq('user_id', CURRENT_USER_ID).order('checkin');
     if (error) { showToast('Erro ao carregar reservas.', 'error'); return; }
     bookings = (data || []).map(b => ({
       id:b.id, property_id:b.property_id, guest:b.guest,
@@ -840,9 +843,12 @@
     const date        = document.getElementById('cleaningDate').value;
     const notes       = document.getElementById('cleaningNotes').value.trim();
 
-    if (!valueRaw || isNaN(value) || value <= 0) { showToast('Informe o valor do gasto de limpeza.', 'error'); return; }
-    if (!date)                                   { showToast('Informe a data da limpeza.', 'error'); return; }
-    if (!currentPropId())                        { showToast('Nenhum imóvel selecionado.', 'error'); return; }
+    if (!valueRaw || isNaN(value) || value <= 0)  { showToast('Informe o valor do gasto de limpeza.', 'error'); return; }
+    if (value > 100000)                           { showToast('Valor do gasto inválido.', 'error'); return; }
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) { showToast('Informe a data da limpeza.', 'error'); return; }
+    if (cleanerName.length > 100)                 { showToast('Nome muito longo (máx 100 caracteres).', 'error'); return; }
+    if (notes.length > 500)                       { showToast('Observações muito longas (máx 500 caracteres).', 'error'); return; }
+    if (!currentPropId())                         { showToast('Nenhum imóvel selecionado.', 'error'); return; }
 
     const entry = {
       id: crypto.randomUUID(),
@@ -907,9 +913,14 @@
     const notes     = document.getElementById('bookingNotes').value.trim();
 
     if (!guest && source !== 'blocked') { showToast('Informe o nome do hóspede.', 'error'); return; }
+    if (guest.length > 100)             { showToast('Nome do hóspede muito longo (máx 100 caracteres).', 'error'); return; }
+    if (notes.length > 500)             { showToast('Observações muito longas (máx 500 caracteres).', 'error'); return; }
     if (!checkin || !checkout)          { showToast('Informe as datas.', 'error'); return; }
-    if (checkout <= checkin)            { showToast('Check-out deve ser após o check-in.', 'error'); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(checkin) || !/^\d{4}-\d{2}-\d{2}$/.test(checkout)) { showToast('Datas inválidas.', 'error'); return; }
+    if (new Date(checkout) <= new Date(checkin)) { showToast('Check-out deve ser após o check-in.', 'error'); return; }
     if (source !== 'blocked' && !valueRaw) { showToast('Informe o valor da reserva.', 'error'); return; }
+    if (value < 0 || value > 1000000)   { showToast('Valor da reserva inválido.', 'error'); return; }
+    if (guests < 1 || guests > 50)      { showToast('Número de hóspedes inválido (1-50).', 'error'); return; }
     if (!currentPropId())               { showToast('Nenhum imóvel selecionado.', 'error'); return; }
 
     const conflict = currentPropBookings().filter(b => b.source !== 'cancelled').some(b => !(checkout <= b.checkin || checkin >= b.checkout));
@@ -922,7 +933,7 @@
       guests_count: guests, notes,
     }).select().single();
 
-    if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+    if (error) { showToast('Erro ao salvar reserva. Tente novamente.', 'error'); return; }
 
     bookings.push({
       id:data.id, property_id:data.property_id, guest:data.guest,
@@ -1117,7 +1128,9 @@
     const icons     = { house:'🏡', apartment:'🏙️', chalet:'🌿', flat:'🛋️' };
     const bgs       = { house:'#e8f4ff', apartment:'#f0e8ff', chalet:'#e8fff0', flat:'#fff0e8' };
     const t = typeEl?.value || 'house';
-    if (!name) { showToast('Informe o nome do imóvel.', 'error'); return; }
+    if (!name)              { showToast('Informe o nome do imóvel.', 'error'); return; }
+    if (name.length > 100)  { showToast('Nome do imóvel muito longo (máx 100 caracteres).', 'error'); return; }
+    if (loc.length > 100)   { showToast('Localização muito longa (máx 100 caracteres).', 'error'); return; }
 
     if (editingPropIdx !== null) {
       const { error } = await db.from('properties').update({
@@ -1216,8 +1229,22 @@
     if (e.key === 'Escape') closeSidebars();
   });
 
+  // ── TIMEOUT DE SESSÃO POR INATIVIDADE (30 min) ──────────────────────────────
+  const INACTIVITY_MS = 30 * 60 * 1000;
+  let _inactivityTimer;
+  function resetInactivityTimer() {
+    clearTimeout(_inactivityTimer);
+    _inactivityTimer = setTimeout(async () => {
+      await db.auth.signOut();
+      window.location.href = 'login.html';
+    }, INACTIVITY_MS);
+  }
+  ['click', 'keydown', 'mousemove', 'touchstart', 'scroll'].forEach(ev => {
+    document.addEventListener(ev, resetInactivityTimer, { passive: true });
+  });
+
   // ── INIT ─────────────────────────────────────────────────────────────────────
-  initApp();
+  initApp().then(() => resetInactivityTimer());
 </script>
 </body>
 </html>

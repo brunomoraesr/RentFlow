@@ -1,4 +1,6 @@
 
+# Credenciais — nunca commitar
+config.js
 
 # Compiled class file
 *.class
