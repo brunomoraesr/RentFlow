@@ -1,0 +1,63 @@
+/* ============================================================
+   RENTAL CALENDAR — Variáveis e reset global
+   Importe este arquivo em todas as páginas
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Cores de fundo */
+  --bg:      #F8F8F6;
+  --bg2:     #ffffff;
+  --bg3:     #f0f0ed;
+  --bg4:     #e8e8e4;
+
+  /* Bordas */
+  --border:  rgba(0, 0, 0, 0.07);
+  --border2: rgba(0, 0, 0, 0.13);
+
+  /* Texto */
+  --txt:     #1a1a1f;
+  --txt2:    #6b6a78;
+  --txt3:    #a0a0ad;
+
+  /* Marca */
+  --accent:  #7c6dfa;
+  --accent2: #9d91fc;
+
+  /* Canais */
+  --airbnb:   #ff5a5f;
+  --booking:  #4a90d9;
+  --whatsapp: #25d366;
+  --manual:   #f5a623;
+  --blocked:  #555463;
+
+  /* Estado */
+  --success: #34c97e;
+  --danger:  #ff4757;
+
+  /* Layout */
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow:    0 4px 24px rgba(0, 0, 0, 0.12);
+
+  /* Tipografia */
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d0d0cc; border-radius: 99px; }

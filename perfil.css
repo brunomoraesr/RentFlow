@@ -1,0 +1,262 @@
+/* ============================================================
+   perfil.css — Dashboard Analítico RentFlow
+   ============================================================ */
+
+/* ── LOADING ── */
+#loadingOverlay {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px; z-index: 9999;
+}
+#loadingOverlay img  { height: 88px; width: auto; }
+#loadingOverlay span { font-size: 13px; color: var(--txt2); font-family: var(--sans); }
+
+/* ── HEADER (slim, sem filtros) ── */
+.dash-header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 14px;
+  height: 56px; flex-shrink: 0;
+}
+.btn-back {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid var(--border2);
+  border-radius: 8px; padding: 6px 13px;
+  font-family: var(--sans); font-size: 14px; color: var(--txt2);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.btn-back:hover { background: var(--bg3); color: var(--txt); }
+.header-logo { height: 30px; width: auto; }
+.dash-title  { font-size: 16px; font-weight: 600; color: var(--txt); }
+
+/* ── BOTÃO TOGGLE SIDEBAR (dashboard) ── */
+.btn-dash-toggle {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  background: none; border: 1px solid var(--border2);
+  border-radius: 8px; cursor: pointer;
+  font-size: 18px; color: var(--txt2);
+  transition: all .15s; flex-shrink: 0;
+  margin-left: auto;
+}
+.btn-dash-toggle:hover { background: var(--bg3); color: var(--txt); }
+.btn-dash-toggle.active {
+  background: rgba(124,109,250,.1);
+  border-color: rgba(124,109,250,.35);
+  color: var(--accent);
+}
+
+/* ── OVERLAY HEADER DENTRO DA SIDEBAR ── */
+.sb-overlay-header {
+  display: none;
+  align-items: center; gap: 8px;
+  padding: 10px 4px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px; flex-shrink: 0;
+}
+.sb-overlay-title {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--txt3); flex: 1;
+}
+.sb-overlay-close {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; cursor: pointer;
+  font-size: 14px; color: var(--txt2);
+  transition: all .15s; flex-shrink: 0;
+}
+.sb-overlay-close:hover { background: var(--bg4); color: var(--txt); }
+
+/* ── BACKDROP DO DASHBOARD ── */
+#dashSidebarBackdrop {
+  display: none;
+  position: fixed;
+  top: 56px; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.42);
+  z-index: 190;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+#dashSidebarBackdrop.open {
+  display: block;
+  animation: dashFadeIn .2s ease;
+}
+@keyframes dashFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── LAYOUT PRINCIPAL: sidebar + conteúdo ── */
+.dash-layout {
+  display: flex;
+  min-height: calc(100vh - 56px);
+}
+
+/* ── SIDEBAR ── */
+.dash-sidebar {
+  width: 268px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+
+.sb-section { display: flex; flex-direction: column; gap: 8px; }
+
+.sb-heading {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--txt3); margin-bottom: 4px;
+}
+
+.sb-label {
+  font-size: 13px; font-weight: 500;
+  color: var(--txt2); margin-top: 4px;
+}
+
+.sb-select {
+  width: 100%; height: 40px; padding: 0 32px 0 12px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px;
+  font-family: var(--sans); font-size: 14px; color: var(--txt);
+  cursor: pointer; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23a0a0ad' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center;
+}
+.sb-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124,109,250,.12);
+}
+
+/* Live badge */
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--txt3); font-family: var(--sans);
+  padding: 8px 12px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--txt3); flex-shrink: 0; transition: background .3s;
+}
+.live-dot.on { background: var(--success); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{ opacity:1 } 50%{ opacity:.3 } }
+
+/* Resumo numérico na sidebar */
+.sb-summary { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+.sb-sum-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.sb-sum-item:last-child { border-bottom: none; }
+.sb-sum-lbl { color: var(--txt2); }
+.sb-sum-val { font-weight: 600; color: var(--txt); }
+
+/* ── CONTEÚDO PRINCIPAL ── */
+.dash-content {
+  flex: 1; min-width: 0;
+  padding: 22px 22px 52px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.kpi-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+  position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--accent-bar, var(--accent));
+  border-radius: 3px 0 0 3px;
+}
+.kpi-lbl {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--txt3); margin-bottom: 8px;
+}
+.kpi-val  { font-size: 24px; font-weight: 700; color: var(--txt); line-height: 1; transition: color .3s; }
+.kpi-sub  { font-size: 11px; color: var(--txt3); margin-top: 6px; min-height: 14px; }
+
+/* ── GRÁFICOS ── */
+.charts-row { display: grid; gap: 14px; }
+.cr-2-1 { grid-template-columns: 2fr 1fr; }
+.cr-3   { grid-template-columns: repeat(3, 1fr); }
+
+.chart-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 18px 8px;
+}
+.chart-title { font-size: 15px; font-weight: 600; color: var(--txt); }
+.chart-desc  { font-size: 13px; color: var(--txt3); margin-top: 3px; margin-bottom: 3px; min-height: 16px; }
+
+/* ── RESPONSIVO ── */
+@media (max-width: 1100px) {
+  .cr-3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 860px) {
+  /* Sidebar vira drawer deslizante */
+  .dash-header { padding: 0 16px; }
+  .btn-dash-toggle { display: flex; }
+
+  .dash-sidebar {
+    position: fixed;
+    top: 56px; left: 0;
+    height: calc(100vh - 56px);
+    width: 280px;
+    max-width: 88vw;
+    transform: translateX(-105%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    z-index: 200;
+    border-right: 1px solid var(--border2);
+    box-shadow: 6px 0 32px rgba(0,0,0,.13);
+  }
+  .dash-sidebar.is-open { transform: translateX(0); }
+  .dash-sidebar.is-open .sb-overlay-header { display: flex; }
+
+  .kpi-grid     { grid-template-columns: repeat(2, 1fr); }
+  .cr-2-1       { grid-template-columns: 1fr; }
+  .cr-3         { grid-template-columns: 1fr; }
+  .dash-content { padding: 16px 14px 40px; }
+}
+
+@media (max-width: 720px) {
+  body { overflow-x: hidden; }
+  .dash-content  { padding: 12px 10px 32px; gap: 12px; }
+  .kpi-grid      { gap: 8px; }
+  .charts-row    { gap: 10px; }
+  .chart-card    { padding: 14px 14px 6px; }
+  .chart-title   { font-size: 14px; }
+  .chart-desc    { font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid    { grid-template-columns: 1fr; gap: 8px; }
+  .kpi-card    { padding: 12px 14px; }
+  .kpi-val     { font-size: 20px; }
+  .dash-content { padding: 10px 8px 24px; gap: 10px; }
+  .chart-card  { padding: 12px 10px 4px; }
+  .chart-title { font-size: 13px; }
+  .chart-desc  { font-size: 11px; margin-top: 2px; }
+}

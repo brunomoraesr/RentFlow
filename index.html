@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RentFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="variables.css" />
+  <link rel="stylesheet" href="App.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="services/supabaseClient.js"></script>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:9999;">
+  <img src="LogoRentFlow.png" alt="RentFlow" style="height:110px;width:auto;" />
+  <div style="font-size:13px;color:var(--txt2);font-family:var(--sans)">Carregando...</div>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <!-- Toggle sidebar esquerda (stats) — visível apenas no mobile -->
+  <button class="btn-toggle-left" id="btnToggleLeft" onclick="toggleSidebar('left')" title="Estatísticas">☰</button>
+
+  <div class="logo">
+    <img src="LogoRentFlow.png" alt="RentFlow" style="height:78px;width:auto;" />
+  </div>
+
+  <!-- Property Switcher -->
+  <div class="prop-switcher-group">
+    <span class="switcher-pre-label">Selecione seu imóvel</span>
+  <div class="property-switcher-wrap">
+    <button class="property-switcher-btn" id="switcherBtn" onclick="toggleSwitcher()">
+      <div class="prop-icon" id="activePropIcon" style="background:#e8f4ff">🏡</div>
+      <div class="prop-info">
+        <div class="prop-name" id="activePropName"></div>
+        <div class="prop-type-label" id="activePropType"></div>
+      </div>
+      <span class="switcher-chevron">▼</span>
+    </button>
+
+    <div class="property-dropdown" id="propDropdown">
+      <div class="dropdown-header" id="dropdownHeader">Meus imóveis</div>
+
+      <div class="dropdown-footer">
+        <button class="btn-add-property" onclick="openAddProperty()">+ Adicionar imóvel</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="filter-bar">
+    <span class="filter-label">Filtros</span>
+    <span class="filter-chip active" onclick="toggleFilter(this)">Todos</span>
+    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#c0373b">Airbnb</span>
+    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#1a5fa0">Booking</span>
+    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#0e8a44">WhatsApp</span>
+    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#a06b00">Manual</span>
+    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#4a4958">Bloqueados</span>
+    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#d97706">Cancelados</span>
+  </div>
+
+  <!-- Header right -->
+  <div class="header-right">
+    <!-- Toggle sidebar direita (agenda) — visível em tablet e mobile -->
+    <button class="btn-toggle-right" id="btnToggleRight" onclick="toggleSidebar('right')" title="Próximas atividades">≡</button>
+
+    <div class="sync-badge">
+      <div class="sync-dot"></div>
+      Sincronizado
+    </div>
+    <span id="userEmail" style="font-size:15px;color:var(--txt2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <a class="btn-dashboard" href="perfil.html" style="display:flex;align-items:center;padding:8px 18px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;font-family:var(--sans);font-size:15px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='rgba(124,109,250,.08)';this.style.borderColor='rgba(124,109,250,.3)'" onmouseout="this.style.background='var(--bg2)';this.style.borderColor='var(--border2)'">Dashboard</a>
+    <a class="user-avatar" href="perfil.html" id="userAvatar" title="Ver perfil">?</a>
+    <button class="btn-logout" onclick="logout()" style="padding:7px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-family:var(--sans);font-size:15px;color:var(--txt2);transition:all .15s;" onmouseover="this.style.color='var(--danger)';this.style.borderColor='rgba(255,71,87,.3)'" onmouseout="this.style.color='var(--txt2)';this.style.borderColor='var(--border)'">Sair</button>
+  </div>
+</header>
+
+<!-- ── LAYOUT PRINCIPAL ── -->
+<div class="app-layout">
+
+  <!-- Sidebar esquerda -->
+  <aside class="sidebar-left">
+    <!-- Cabeçalho visível apenas quando aberto como overlay -->
+    <div class="sidebar-overlay-header">
+      <span class="sidebar-overlay-title">Estatísticas</span>
+      <button class="sidebar-close-btn" onclick="closeSidebar('left')">✕</button>
+    </div>
+
+    <div class="stat-group">
+      <div class="stat-group-title">Este mês</div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Ocupação</div>
+          <div class="stat-value" id="statOcupacao">73%</div>
+          <div class="stat-sub" id="statOcupacaoSub">22 de 30 dias</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(124,109,250,.12)">📊</div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Inquilinos</div>
+          <div class="stat-value" id="statCheckins">5</div>
+          <div class="stat-sub">Entradas no mês</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(52,201,126,.12)">✅</div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Diárias</div>
+          <div class="stat-value" id="statDiarias">22</div>
+          <div class="stat-sub">Noites reservadas</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(74,144,217,.12)">🌙</div>
+      </div>
+    </div>
+
+    <div class="stat-group">
+      <div class="stat-group-title">Ganhos</div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Receita do mês</div>
+          <div class="stat-value" id="statReceita" style="font-size:19px">R$ 0</div>
+          <div class="stat-sub" id="statReceitaSub">0 reservas</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(52,201,126,.12)">💰</div>
+      </div>
+
+    </div>
+
+    <div class="stat-group">
+      <div class="stat-group-title">Despesas</div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Gastos de Limpeza</div>
+          <div class="stat-value" id="statLimpeza" style="font-size:19px">R$ 0</div>
+          <div class="stat-sub" id="statLimpezaSub">0 limpezas</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(255,71,87,.12)">🧹</div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Lucro do mês</div>
+          <div class="stat-value" id="statLucro" style="font-size:19px">R$ 0</div>
+          <div class="stat-sub">Receita − Limpeza</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(52,201,126,.12)">📊</div>
+      </div>
+    </div>
+
+    <div class="stat-group">
+      <div class="stat-group-title">Legenda</div>
+      <div class="legend-list">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#ff5a5f"></div>
+          Airbnb
+          <span class="legend-count" id="lgAirbnb">0</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#4a90d9"></div>
+          Booking.com
+          <span class="legend-count" id="lgBooking">0</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#25d366"></div>
+          WhatsApp
+          <span class="legend-count" id="lgWhatsapp">0</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#f5a623"></div>
+          Manual
+          <span class="legend-count" id="lgManual">0</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#555463"></div>
+          Bloqueado
+          <span class="legend-count" id="lgBlocked">0</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Área do calendário -->
+  <main class="main-area">
+    <div class="property-banner">
+      <span class="property-banner-icon" id="bannerIcon">🏡</span>
+      <span class="property-banner-name" id="bannerName">Casa da Praia</span>
+      <span class="property-banner-loc" id="bannerLoc">— Florianópolis, SC</span>
+    </div>
+
+    <div class="cal-toolbar">
+      <div class="cal-nav">
+        <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+        <div class="cal-month-label" id="calMonthLabel">Abril <span>2026</span></div>
+        <button class="nav-btn" onclick="changeMonth(1)">›</button>
+        <button class="btn-today" onclick="goToday()">Hoje</button>
+      </div>
+      <div class="toolbar-actions">
+        <button class="btn-new" onclick="openAddBooking()">+ Nova reserva</button>
+        <button class="btn-clean" onclick="openAddCleaning()">+ Gasto de Limpeza</button>
+      </div>
+    </div>
+
+    <div class="cal-grid-wrap">
+      <div class="cal-grid" id="calGrid">
+        <!-- preenchido pelo JS -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Sidebar direita -->
+  <aside class="sidebar-right">
+    <!-- Cabeçalho visível apenas quando aberto como overlay -->
+    <div class="sidebar-overlay-header">
+      <span class="sidebar-overlay-title">Agenda</span>
+      <button class="sidebar-close-btn" onclick="closeSidebar('right')">✕</button>
+    </div>
+
+    <div>
+      <div class="side-section-title">Próximas entradas</div>
+      <div class="upcoming-list" id="upcomingList">
+        <div class="empty-state">Nenhuma entrada<br>nos próximos dias.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="side-section-title">Próximas saídas</div>
+      <div class="upcoming-list" id="checkoutList">
+        <div class="empty-state">Nenhuma saída<br>nos próximos dias.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="side-section-title">Gastos de Limpeza</div>
+      <div class="upcoming-list" id="cleaningList">
+        <div class="empty-state">Nenhum gasto<br>registrado.</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── MODAL: Nova Reserva ── -->
+<div class="modal-overlay" id="modalAddBooking">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nova Reserva</div>
+      <button class="modal-close" onclick="closeModal('modalAddBooking')">✕</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="form-label">Origem <span>*</span></label>
+        <div class="source-options">
+          <label class="source-option selected">
+            <input type="radio" name="source" value="airbnb" checked onchange="selectSource(this.closest('.source-option'))"/>
+            <div class="source-icon" style="background:rgba(255,90,95,.12)">🏠</div>
+            <span class="source-name">Airbnb</span>
+          </label>
+          <label class="source-option">
+            <input type="radio" name="source" value="booking" onchange="selectSource(this.closest('.source-option'))"/>
+            <div class="source-icon" style="background:rgba(74,144,217,.12)">🌐</div>
+            <span class="source-name">Booking</span>
+          </label>
+          <label class="source-option">
+            <input type="radio" name="source" value="whatsapp" onchange="selectSource(this.closest('.source-option'))"/>
+            <div class="source-icon" style="background:rgba(37,211,102,.12)">💬</div>
+            <span class="source-name">WhatsApp</span>
+          </label>
+          <label class="source-option">
+            <input type="radio" name="source" value="manual" onchange="selectSource(this.closest('.source-option'))"/>
+            <div class="source-icon" style="background:rgba(245,166,35,.12)">📝</div>
+            <span class="source-name">Manual</span>
+          </label>
+          <label class="source-option">
+            <input type="radio" name="source" value="blocked" onchange="selectSource(this.closest('.source-option'))"/>
+            <div class="source-icon" style="background:rgba(85,84,99,.12)">🔒</div>
+            <span class="source-name">Bloqueio</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-field full" id="fieldGuest">
+        <label class="form-label">Hóspede <span>*</span></label>
+        <input class="form-input" id="guestName" type="text" placeholder="Nome do hóspede" />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Check-in <span>*</span></label>
+        <input class="form-input" id="checkinDate" type="date" oninput="updateNightsPreview()" />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Check-out <span>*</span></label>
+        <input class="form-input" id="checkoutDate" type="date" oninput="updateNightsPreview()" />
+      </div>
+
+      <div class="nights-preview" id="nightsPreview" style="display:none">
+        🌙 <strong id="nightsCount">0</strong> noites
+      </div>
+
+      <hr class="form-divider" id="fieldDivider" />
+
+      <div class="form-field" id="fieldValue">
+        <label class="form-label">Valor total (R$) <span>*</span></label>
+        <input class="form-input" id="totalValue" type="number" placeholder="0,00" min="0" step="0.01" />
+      </div>
+
+      <div class="form-field" id="fieldGuests">
+        <label class="form-label">Hóspedes</label>
+        <input class="form-input" id="guestCount" type="number" placeholder="1" min="1" max="20" />
+      </div>
+
+      <div class="form-field full">
+        <label class="form-label">Observações</label>
+        <textarea class="form-textarea" id="bookingNotes" placeholder="Notas sobre a reserva..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalAddBooking')">Cancelar</button>
+      <button class="btn-confirm" id="btnSaveBooking" onclick="saveBooking()">Salvar reserva</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Detalhe da Reserva ── -->
+<div class="modal-overlay" id="modalViewBooking">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title" id="viewBookingTitle">Reserva</div>
+      <button class="modal-close" onclick="closeModal('modalViewBooking')">✕</button>
+    </div>
+
+    <div id="viewBookingBody"></div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="deleteCurrentBooking()">Excluir</button>
+      <button class="btn-warn" id="btnCancelBooking" onclick="cancelCurrentBooking()">Cancelar Reserva</button>
+      <button class="btn-cancel" onclick="closeModal('modalViewBooking')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Adicionar Imóvel ── -->
+<div class="modal-overlay" id="modalAddProperty">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">Novo Imóvel</div>
+      <button class="modal-close" onclick="closeAddPropertyModal()">✕</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="form-label">Tipo de imóvel</label>
+        <div class="prop-type-grid">
+          <label class="prop-type-opt selected">
+            <input type="radio" name="propType" value="house" checked onchange="selectPropType(this.closest('.prop-type-opt'))"/>
+            <span class="prop-type-emoji">🏡</span>
+            <span class="prop-type-name">Casa</span>
+          </label>
+          <label class="prop-type-opt">
+            <input type="radio" name="propType" value="apartment" onchange="selectPropType(this.closest('.prop-type-opt'))"/>
+            <span class="prop-type-emoji">🏙️</span>
+            <span class="prop-type-name">Apartamento</span>
+          </label>
+          <label class="prop-type-opt">
+            <input type="radio" name="propType" value="chalet" onchange="selectPropType(this.closest('.prop-type-opt'))"/>
+            <span class="prop-type-emoji">🌿</span>
+            <span class="prop-type-name">Chalé</span>
+          </label>
+          <label class="prop-type-opt">
+            <input type="radio" name="propType" value="flat" onchange="selectPropType(this.closest('.prop-type-opt'))"/>
+            <span class="prop-type-emoji">🛋️</span>
+            <span class="prop-type-name">Flat/Studio</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-field full">
+        <label class="form-label">Nome do imóvel <span>*</span></label>
+        <input class="form-input" id="propName" type="text" placeholder="Ex: Casa da Praia" />
+      </div>
+
+      <div class="form-field full">
+        <label class="form-label">Localização</label>
+        <input class="form-input" id="propLocation" type="text" placeholder="Ex: Florianópolis, SC" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddPropertyModal()">Cancelar</button>
+      <button class="btn-confirm" id="btnSaveProperty" onclick="saveProperty()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Ver/Excluir Limpeza ── -->
+<div class="modal-overlay" id="modalViewCleaning">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">Gasto de Limpeza</div>
+      <button class="modal-close" onclick="closeModal('modalViewCleaning')">✕</button>
+    </div>
+
+    <div id="viewCleaningBody"></div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" onclick="deleteCurrentCleaning()">Excluir</button>
+      <button class="btn-cancel" onclick="closeModal('modalViewCleaning')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Gasto de Limpeza ── -->
+<div class="modal-overlay" id="modalAddCleaning">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">Gasto de Limpeza</div>
+      <button class="modal-close" onclick="closeModal('modalAddCleaning')">✕</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="form-label">Quem realizou a limpeza</label>
+        <input class="form-input" id="cleanerName" type="text" placeholder="Nome da funcionária" />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Valor (R$) <span>*</span></label>
+        <input class="form-input" id="cleaningValue" type="number" placeholder="0,00" min="0" step="0.01" />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Data <span>*</span></label>
+        <input class="form-input" id="cleaningDate" type="date" />
+      </div>
+
+      <div class="form-field full">
+        <label class="form-label">Observações</label>
+        <textarea class="form-textarea" id="cleaningNotes" placeholder="Notas sobre a limpeza..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalAddCleaning')">Cancelar</button>
+      <button class="btn-confirm" onclick="saveCleaning()">Salvar gasto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SIDEBAR BACKDROP ── -->
+<div id="sidebarBackdrop" onclick="closeSidebars()"></div>
+
+<!-- ── TOAST CONTAINER ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ── ESTADO ──────────────────────────────────────────────────────────────────
+  let PROPERTIES = [];
+
+  let bookings          = [];
+  let cleaningExpenses  = [];
+  let currentPropIdx    = 0;
+  let viewYear       = new Date().getFullYear();
+  let viewMonth      = new Date().getMonth();
+  let activeFilter   = 'todos';
+  let currentViewId      = null;
+  let currentCleaningId  = null;
+  let editingPropIdx = null;
+
+  function currentPropId()               { return PROPERTIES[currentPropIdx]?.id; }
+  function currentPropBookings()         { return bookings.filter(b => b.property_id === currentPropId()); }
+  function currentPropCleaningExpenses() { return cleaningExpenses.filter(c => c.property_id === currentPropId()); }
+
+  // ── INIT / AUTH ──────────────────────────────────────────────────────────────
+  async function initApp() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+
+    const email = session.user.email;
+    document.getElementById('userEmail').textContent = email.length > 24 ? email.slice(0,22)+'…' : email;
+    document.getElementById('userAvatar').textContent = email.charAt(0).toUpperCase();
+
+    await loadProperties();
+    await loadBookings();
+    await loadCleaningExpenses();
+
+    document.getElementById('loadingOverlay').style.display = 'none';
+    renderPropertyDropdown();
+    if (PROPERTIES.length) {
+      updateActivePropHeader();
+    } else {
+      document.getElementById('activePropName').textContent      = 'Registre seu primeiro imóvel';
+      document.getElementById('activePropType').textContent      = 'Nenhum imóvel cadastrado';
+      document.getElementById('activePropIcon').textContent      = '🏠';
+      document.getElementById('activePropIcon').style.background = 'var(--bg3)';
+    }
+    renderCalendar();
+  }
+
+  async function loadProperties() {
+    const { data, error } = await db.from('properties').select('*').order('created_at');
+    if (error) { showToast('Erro ao carregar imóveis.', 'error'); return; }
+    PROPERTIES = (data || []).map(p => ({ id:p.id, name:p.name, type:p.type, loc:p.location, icon:p.icon, bg:p.bg_color }));
+    currentPropIdx = 0;
+  }
+
+  async function loadBookings() {
+    const { data, error } = await db.from('bookings').select('*').order('checkin');
+    if (error) { showToast('Erro ao carregar reservas.', 'error'); return; }
+    bookings = (data || []).map(b => ({
+      id:b.id, property_id:b.property_id, guest:b.guest,
+      checkin:b.checkin, checkout:b.checkout, source:b.source,
+      value:Number(b.value)||0, guests:b.guests_count, notes:b.notes||''
+    }));
+  }
+
+  async function loadCleaningExpenses() {
+    try {
+      const raw = localStorage.getItem('rental_cleaning_expenses');
+      cleaningExpenses = raw ? JSON.parse(raw) : [];
+    } catch(e) {
+      cleaningExpenses = [];
+    }
+  }
+
+  function persistCleaningExpenses() {
+    localStorage.setItem('rental_cleaning_expenses', JSON.stringify(cleaningExpenses));
+  }
+
+  async function logout() {
+    await db.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  // ── CALENDÁRIO ──────────────────────────────────────────────────────────────
+  const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const DAYS_PT   = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+  function renderCalendar() {
+    const grid = document.getElementById('calGrid');
+    const label = document.getElementById('calMonthLabel');
+    label.innerHTML = `${MONTHS_PT[viewMonth]} <span>${viewYear}</span>`;
+
+    const props = currentPropBookings();
+
+    // Mapa de limpezas: "YYYY-MM-DD" → [id, ...]
+    const cleanMap = {};
+    currentPropCleaningExpenses().forEach(c => {
+      if (!cleanMap[c.date]) cleanMap[c.date] = [];
+      cleanMap[c.date].push(c.id);
+    });
+
+    // Mapa: "YYYY-MM-DD" → [booking, ...]
+    const dayMap = {};
+    props.forEach(b => {
+      let d = new Date(b.checkin + 'T00:00:00');
+      const end = new Date(b.checkout + 'T00:00:00');
+      while (d < end) {
+        const key = d.toISOString().slice(0,10);
+        if (!dayMap[key]) dayMap[key] = [];
+        dayMap[key].push(b);
+        d.setDate(d.getDate() + 1);
+      }
+    });
+
+    // Primeiro dia do mês e total de dias
+    const firstDay  = new Date(viewYear, viewMonth, 1).getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const daysInPrev  = new Date(viewYear, viewMonth, 0).getDate();
+    const todayStr    = new Date().toISOString().slice(0,10);
+
+    let html = DAYS_PT.map(d => `<div class="day-header">${d}</div>`).join('');
+
+    // Dias do mês anterior
+    for (let i = firstDay - 1; i >= 0; i--) {
+      html += `<div class="day-cell other-month"><span class="day-num">${daysInPrev - i}</span></div>`;
+    }
+
+    // Dias do mês atual
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr  = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday  = dateStr === todayStr;
+      const dayBookings = dayMap[dateStr] || [];
+      const cls = ['day-cell', isToday ? 'today' : ''].filter(Boolean).join(' ');
+
+      let pills = '';
+      dayBookings.forEach(b => {
+        if (activeFilter !== 'todos' && b.source !== activeFilter) return;
+        const name = b.source === 'blocked' ? '🔒 ' + b.notes : b.guest;
+        pills += `<div class="booking-pill pill-${b.source}" onclick="viewBooking('${b.id}', event)">`
+               + `<span class="pill-dot" style="background:${sourceColor(b.source)}"></span>`
+               + escHtml(name.slice(0,18)) + `</div>`;
+      });
+
+      const cleanIds  = cleanMap[dateStr];
+      const cleanIcon = cleanIds
+        ? `<span class="clean-dot" title="Ver limpeza" onclick="viewCleaning('${cleanIds[0]}',event)">🧹</span>`
+        : '';
+      html += `<div class="${cls}" onclick="cellClick('${dateStr}')">
+                 <span class="day-num">${d}</span>
+                 ${cleanIcon}
+                 ${pills}
+               </div>`;
+    }
+
+    // Dias do mês seguinte
+    const totalCells = firstDay + daysInMonth;
+    const remaining  = (7 - (totalCells % 7)) % 7;
+    for (let d = 1; d <= remaining; d++) {
+      html += `<div class="day-cell other-month"><span class="day-num">${d}</span></div>`;
+    }
+
+    grid.innerHTML = html;
+    renderSidebars();
+    updateStats();
+  }
+
+  function sourceColor(s) {
+    return { airbnb:'#ff5a5f', booking:'#4a90d9', whatsapp:'#25d366', manual:'#f5a623', blocked:'#555463', cancelled:'#d97706' }[s] || '#ccc';
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function changeMonth(delta) {
+    viewMonth += delta;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
+    renderCalendar();
+  }
+
+  function goToday() {
+    viewYear  = new Date().getFullYear();
+    viewMonth = new Date().getMonth();
+    renderCalendar();
+  }
+
+  function cellClick(dateStr) {
+    document.getElementById('checkinDate').value  = dateStr;
+    document.getElementById('checkoutDate').value = '';
+    updateNightsPreview();
+    openAddBooking();
+  }
+
+  // ── SIDEBAR: PRÓXIMAS ENTRADAS / SAÍDAS ─────────────────────────────────────
+  function renderSidebars() {
+    const todayMs = Date.now();
+    const futureCutoff = todayMs + 14 * 86400000;
+    const props = currentPropBookings().slice().sort((a,b) => a.checkin.localeCompare(b.checkin));
+
+    const checkins  = props.filter(b => { const t = +new Date(b.checkin+'T00:00:00'); return b.source !== 'cancelled' && t >= todayMs && t <= futureCutoff; });
+    const checkouts = props.filter(b => { const t = +new Date(b.checkout+'T00:00:00'); return b.source !== 'cancelled' && t >= todayMs && t <= futureCutoff; });
+
+    document.getElementById('upcomingList').innerHTML  = renderUpcomingList(checkins,  'checkin');
+    document.getElementById('checkoutList').innerHTML  = renderUpcomingList(checkouts, 'checkout');
+    document.getElementById('cleaningList').innerHTML  = renderCleaningList(currentPropCleaningExpenses().slice(0, 8));
+  }
+
+  function renderCleaningList(list) {
+    if (!list.length) return '<div class="empty-state">Nenhum gasto<br>registrado.</div>';
+    return list.map(c => {
+      const d = new Date(c.date + 'T00:00:00');
+      const label = d.toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' });
+      return `<div class="cleaning-item" onclick="viewCleaning('${c.id}',event)">
+        <div class="cleaning-icon">🧹</div>
+        <div class="upcoming-info">
+          <div class="upcoming-guest">${escHtml(c.cleanerName)}</div>
+          <div class="upcoming-dates">${label}</div>
+        </div>
+        <span class="upcoming-nights">R$ ${c.value.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function renderUpcomingList(list, mode) {
+    if (!list.length) return '<div class="empty-state">Nenhuma entrada<br>nos próximos 14 dias.</div>';
+    return list.map(b => {
+      const nights = Math.round((new Date(b.checkout+'T00:00:00') - new Date(b.checkin+'T00:00:00')) / 86400000);
+      const date   = mode === 'checkin' ? b.checkin : b.checkout;
+      const d      = new Date(date+'T00:00:00');
+      const label  = d.toLocaleDateString('pt-BR', { day:'numeric', month:'short' });
+      return `<div class="upcoming-item" onclick="viewBooking('${b.id}', event)">
+        <div class="upcoming-source-dot" style="background:${sourceColor(b.source)}"></div>
+        <div class="upcoming-info">
+          <div class="upcoming-guest">${escHtml(b.guest)}</div>
+          <div class="upcoming-dates">${label}</div>
+        </div>
+        <span class="upcoming-nights">${nights}n</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── STATS ───────────────────────────────────────────────────────────────────
+  function updateStats() {
+    const props = currentPropBookings();
+    const y = viewYear, m = viewMonth;
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+
+    let occupied = 0;
+    const counts = { airbnb:0, booking:0, whatsapp:0, manual:0, blocked:0 };
+    let checkins = 0;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      for (const b of props) {
+        if (b.source !== 'cancelled' && b.checkin <= dateStr && dateStr < b.checkout) { occupied++; break; }
+      }
+    }
+
+    props.forEach(b => {
+      if (b.source === 'cancelled') return;
+      const cin = new Date(b.checkin+'T00:00:00');
+      if (cin.getFullYear() === y && cin.getMonth() === m) checkins++;
+      if (b.checkin.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)) counts[b.source] = (counts[b.source]||0)+1;
+    });
+
+    let revenue = 0, revenueCount = 0;
+    props.forEach(b => {
+      const cin = new Date(b.checkin+'T00:00:00');
+      if (cin.getFullYear() === y && cin.getMonth() === m && b.source !== 'blocked' && b.source !== 'cancelled' && b.value) {
+        revenue += b.value;
+        revenueCount++;
+      }
+    });
+    let cleaningCost = 0, cleaningCount = 0;
+    currentPropCleaningExpenses().forEach(c => {
+      const d = new Date(c.date + 'T00:00:00');
+      if (d.getFullYear() === y && d.getMonth() === m) {
+        cleaningCost += c.value;
+        cleaningCount++;
+      }
+    });
+    const profit = revenue - cleaningCost;
+
+    document.getElementById('statOcupacao').textContent    = Math.round(occupied/daysInMonth*100) + '%';
+    document.getElementById('statOcupacaoSub').textContent = `${occupied} de ${daysInMonth} dias`;
+    document.getElementById('statCheckins').textContent    = checkins;
+    document.getElementById('statDiarias').textContent     = occupied;
+    document.getElementById('statReceita').textContent     = 'R$ ' + revenue.toLocaleString('pt-BR', {minimumFractionDigits:2});
+    document.getElementById('statReceitaSub').textContent  = revenueCount + ' reserva' + (revenueCount !== 1 ? 's' : '');
+    document.getElementById('statLimpeza').textContent     = 'R$ ' + cleaningCost.toLocaleString('pt-BR', {minimumFractionDigits:2});
+    document.getElementById('statLimpezaSub').textContent  = cleaningCount + ' limpeza' + (cleaningCount !== 1 ? 's' : '');
+    const lucroEl = document.getElementById('statLucro');
+    lucroEl.textContent  = 'R$ ' + profit.toLocaleString('pt-BR', {minimumFractionDigits:2});
+    lucroEl.style.color  = profit < 0 ? 'var(--danger)' : profit > 0 ? 'var(--success)' : '';
+
+    // Contagens full (sem filtro de mês)
+    const allCounts = { airbnb:0, booking:0, whatsapp:0, manual:0, blocked:0 };
+    props.forEach(b => allCounts[b.source] = (allCounts[b.source]||0)+1);
+    document.getElementById('lgAirbnb').textContent  = allCounts.airbnb;
+    document.getElementById('lgBooking').textContent = allCounts.booking;
+    document.getElementById('lgWhatsapp').textContent= allCounts.whatsapp;
+    document.getElementById('lgManual').textContent  = allCounts.manual;
+    document.getElementById('lgBlocked').textContent = allCounts.blocked;
+  }
+
+  // ── PROPERTY SWITCHER ───────────────────────────────────────────────────────
+  function toggleSwitcher() {
+    const btn = document.getElementById('switcherBtn');
+    const dd  = document.getElementById('propDropdown');
+    btn.classList.toggle('open');
+    dd.classList.toggle('open');
+  }
+
+  function selectProperty(idx) {
+    currentPropIdx = idx;
+    updateActivePropHeader();
+    renderPropertyDropdown();
+    toggleSwitcher();
+    renderCalendar();
+  }
+
+  document.addEventListener('click', e => {
+    const wrap = document.querySelector('.property-switcher-wrap');
+    if (!wrap.contains(e.target)) {
+      document.getElementById('switcherBtn').classList.remove('open');
+      document.getElementById('propDropdown').classList.remove('open');
+    }
+  });
+
+  // ── FILTROS ─────────────────────────────────────────────────────────────────
+  const filterMap = { 'Todos':'todos', 'Airbnb':'airbnb', 'Booking.com':'booking', 'WhatsApp':'whatsapp', 'Manual':'manual', 'Bloqueados':'blocked', 'Cancelados':'cancelled' };
+
+  function toggleFilter(el) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    activeFilter = filterMap[el.textContent] || 'todos';
+    renderCalendar();
+  }
+
+  // ── MODAIS ──────────────────────────────────────────────────────────────────
+  function openAddBooking(dateStr) {
+    if (dateStr) document.getElementById('checkinDate').value = dateStr;
+    document.getElementById('modalAddBooking').classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function openAddProperty() {
+    editingPropIdx = null;
+    document.getElementById('propName').value     = '';
+    document.getElementById('propLocation').value = '';
+    document.querySelector('#modalAddProperty .modal-title').textContent = 'Novo Imóvel';
+    document.getElementById('btnSaveProperty').textContent = 'Adicionar';
+    document.querySelectorAll('input[name="propType"]').forEach((r, i) => {
+      r.checked = i === 0;
+      r.closest('.prop-type-opt').classList.toggle('selected', i === 0);
+    });
+    document.getElementById('propDropdown').classList.remove('open');
+    document.getElementById('switcherBtn').classList.remove('open');
+    document.getElementById('modalAddProperty').classList.add('open');
+  }
+
+  function openAddCleaning() {
+    document.getElementById('cleanerName').value   = '';
+    document.getElementById('cleaningValue').value = '';
+    document.getElementById('cleaningDate').value  = new Date().toISOString().slice(0,10);
+    document.getElementById('cleaningNotes').value = '';
+    document.getElementById('modalAddCleaning').classList.add('open');
+  }
+
+  function saveCleaning() {
+    const cleanerName = document.getElementById('cleanerName').value.trim();
+    const valueRaw    = document.getElementById('cleaningValue').value;
+    const value       = parseFloat(valueRaw);
+    const date        = document.getElementById('cleaningDate').value;
+    const notes       = document.getElementById('cleaningNotes').value.trim();
+
+    if (!valueRaw || isNaN(value) || value <= 0) { showToast('Informe o valor do gasto de limpeza.', 'error'); return; }
+    if (!date)                                   { showToast('Informe a data da limpeza.', 'error'); return; }
+    if (!currentPropId())                        { showToast('Nenhum imóvel selecionado.', 'error'); return; }
+
+    const entry = {
+      id: crypto.randomUUID(),
+      property_id: currentPropId(),
+      cleanerName, value, date, notes
+    };
+
+    cleaningExpenses.unshift(entry);
+    persistCleaningExpenses();
+
+    closeModal('modalAddCleaning');
+    renderCalendar();
+    showToast('Gasto de limpeza salvo!', 'success');
+  }
+
+  // Fechar modal ao clicar fora
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  });
+
+  // ── SOURCE SELECTOR ─────────────────────────────────────────────────────────
+  function selectSource(el) {
+    document.querySelectorAll('.source-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    const isBlocked = el.querySelector('input').value === 'blocked';
+    const bookingOnlyFields = ['fieldGuest', 'fieldDivider', 'fieldValue', 'fieldGuests'];
+    bookingOnlyFields.forEach(id => {
+      document.getElementById(id).style.display = isBlocked ? 'none' : '';
+    });
+    document.querySelector('#modalAddBooking .modal-title').textContent = isBlocked ? 'Novo Bloqueio' : 'Nova Reserva';
+    document.getElementById('btnSaveBooking').textContent = isBlocked ? 'Salvar bloqueio' : 'Salvar reserva';
+  }
+
+  function selectPropType(el) {
+    document.querySelectorAll('.prop-type-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // ── NIGHTS PREVIEW ──────────────────────────────────────────────────────────
+  function updateNightsPreview() {
+    const cin  = document.getElementById('checkinDate').value;
+    const cout = document.getElementById('checkoutDate').value;
+    const preview = document.getElementById('nightsPreview');
+    if (cin && cout && cout > cin) {
+      const nights = Math.round((new Date(cout) - new Date(cin)) / 86400000);
+      document.getElementById('nightsCount').textContent = nights;
+      preview.style.display = 'flex';
+    } else {
+      preview.style.display = 'none';
+    }
+  }
+
+  // ── SALVAR RESERVA ──────────────────────────────────────────────────────────
+  async function saveBooking() {
+    const guest    = document.getElementById('guestName').value.trim();
+    const checkin  = document.getElementById('checkinDate').value;
+    const checkout = document.getElementById('checkoutDate').value;
+    const source    = document.querySelector('input[name="source"]:checked')?.value || 'manual';
+    const valueRaw  = document.getElementById('totalValue').value;
+    const value     = parseFloat(valueRaw) || 0;
+    const guests    = parseInt(document.getElementById('guestCount').value) || 1;
+    const notes     = document.getElementById('bookingNotes').value.trim();
+
+    if (!guest && source !== 'blocked') { showToast('Informe o nome do hóspede.', 'error'); return; }
+    if (!checkin || !checkout)          { showToast('Informe as datas.', 'error'); return; }
+    if (checkout <= checkin)            { showToast('Check-out deve ser após o check-in.', 'error'); return; }
+    if (source !== 'blocked' && !valueRaw) { showToast('Informe o valor da reserva.', 'error'); return; }
+    if (!currentPropId())               { showToast('Nenhum imóvel selecionado.', 'error'); return; }
+
+    const conflict = currentPropBookings().filter(b => b.source !== 'cancelled').some(b => !(checkout <= b.checkin || checkin >= b.checkout));
+    if (conflict) { showToast('Conflito com reserva existente!', 'error'); return; }
+
+    const { data: { user } } = await db.auth.getUser();
+    const { data, error } = await db.from('bookings').insert({
+      property_id: currentPropId(), user_id: user.id,
+      guest: guest || 'Bloqueio', checkin, checkout, source, value,
+      guests_count: guests, notes,
+    }).select().single();
+
+    if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+
+    bookings.push({
+      id:data.id, property_id:data.property_id, guest:data.guest,
+      checkin:data.checkin, checkout:data.checkout, source:data.source,
+      value:Number(data.value)||0, guests:data.guests_count, notes:data.notes||''
+    });
+
+    closeModal('modalAddBooking');
+    resetAddForm();
+    renderCalendar();
+    showToast('Reserva salva com sucesso!', 'success');
+  }
+
+  function resetAddForm() {
+    document.getElementById('guestName').value   = '';
+    document.getElementById('checkinDate').value = '';
+    document.getElementById('checkoutDate').value= '';
+    document.getElementById('totalValue').value  = '';
+    document.getElementById('guestCount').value  = '';
+    document.getElementById('bookingNotes').value= '';
+    document.getElementById('nightsPreview').style.display = 'none';
+    ['fieldGuest', 'fieldDivider', 'fieldValue', 'fieldGuests'].forEach(id => {
+      document.getElementById(id).style.display = '';
+    });
+    document.querySelector('#modalAddBooking .modal-title').textContent = 'Nova Reserva';
+    document.getElementById('btnSaveBooking').textContent = 'Salvar reserva';
+    document.querySelectorAll('.source-option').forEach((o,i) => o.classList.toggle('selected', i===0));
+    const firstRadio = document.querySelector('input[name="source"]');
+    if (firstRadio) firstRadio.checked = true;
+  }
+
+  // ── VER RESERVA ─────────────────────────────────────────────────────────────
+  function viewBooking(id, e) {
+    e && e.stopPropagation();
+    const b = bookings.find(x => x.id === id);
+    if (!b) return;
+    currentViewId = id;
+
+    const nights = Math.round((new Date(b.checkout+'T00:00:00') - new Date(b.checkin+'T00:00:00')) / 86400000);
+    const sourceNames = { airbnb:'Airbnb', booking:'Booking.com', whatsapp:'WhatsApp', manual:'Manual', blocked:'Bloqueio' };
+
+    const isCancelled = b.source === 'cancelled';
+    document.getElementById('viewBookingTitle').textContent = b.source === 'blocked' ? 'Bloqueio' : b.guest;
+    // Badge CANCELADA e controle do botão
+    const titleEl = document.getElementById('viewBookingTitle');
+    titleEl.innerHTML = (b.source === 'blocked' ? 'Bloqueio' : escHtml(b.guest))
+      + (isCancelled ? ' <span style="font-size:11px;padding:2px 8px;background:rgba(217,119,6,.15);color:#d97706;border-radius:4px;font-weight:600;vertical-align:middle;">CANCELADA</span>' : '');
+    document.getElementById('btnCancelBooking').style.display = (isCancelled || b.source === 'blocked') ? 'none' : '';
+    document.getElementById('viewBookingBody').innerHTML = `
+      <div class="detail-row"><span class="detail-row-label">Hóspede</span><span class="detail-row-value">${escHtml(b.guest)}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Origem</span><span class="detail-row-value" style="color:${sourceColor(b.source)}">${sourceNames[b.source]||b.source}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Check-in</span><span class="detail-row-value">${formatDate(b.checkin)}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Check-out</span><span class="detail-row-value">${formatDate(b.checkout)}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Noites</span><span class="detail-row-value">${nights}</span></div>
+      ${b.value ? `<div class="detail-row"><span class="detail-row-label">Valor</span><span class="detail-row-value">R$ ${b.value.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>` : ''}
+      ${b.guests ? `<div class="detail-row"><span class="detail-row-label">Hóspedes</span><span class="detail-row-value">${b.guests}</span></div>` : ''}
+      ${b.notes  ? `<div class="detail-row"><span class="detail-row-label">Obs.</span><span class="detail-row-value">${escHtml(b.notes)}</span></div>` : ''}
+    `;
+    document.getElementById('modalViewBooking').classList.add('open');
+  }
+
+  async function cancelCurrentBooking() {
+    if (!currentViewId) return;
+    const bk = bookings.find(b => b.id === currentViewId);
+    if (!bk || bk.source === 'cancelled') return;
+
+    const { error } = await db.from('bookings').update({ source: 'cancelled' }).eq('id', currentViewId);
+    if (error) { showToast('Erro ao cancelar reserva.', 'error'); return; }
+
+    bk.source = 'cancelled';
+    closeModal('modalViewBooking');
+    renderCalendar();
+    showToast('Reserva marcada como cancelada.', 'success');
+  }
+
+  async function deleteCurrentBooking() {
+    if (currentViewId === null) return;
+    const { error } = await db.from('bookings').delete().eq('id', currentViewId);
+    if (error) { showToast('Erro ao excluir reserva.', 'error'); return; }
+    bookings = bookings.filter(b => b.id !== currentViewId);
+    closeModal('modalViewBooking');
+    renderCalendar();
+    showToast('Reserva excluída.', 'success');
+  }
+
+  function viewCleaning(id, e) {
+    e && e.stopPropagation();
+    const c = cleaningExpenses.find(x => x.id === id);
+    if (!c) return;
+    currentCleaningId = id;
+    const d = new Date(c.date + 'T00:00:00');
+    const label = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+    document.getElementById('viewCleaningBody').innerHTML = `
+      <div class="detail-row"><span class="detail-row-label">Funcionária</span><span class="detail-row-value">${escHtml(c.cleanerName)}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Data</span><span class="detail-row-value">${label}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Valor</span><span class="detail-row-value">R$ ${c.value.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>
+      ${c.notes ? `<div class="detail-row"><span class="detail-row-label">Obs.</span><span class="detail-row-value">${escHtml(c.notes)}</span></div>` : ''}
+    `;
+    document.getElementById('modalViewCleaning').classList.add('open');
+  }
+
+  function deleteCurrentCleaning() {
+    if (!currentCleaningId) return;
+    cleaningExpenses = cleaningExpenses.filter(c => c.id !== currentCleaningId);
+    persistCleaningExpenses();
+    currentCleaningId = null;
+    closeModal('modalViewCleaning');
+    renderCalendar();
+    showToast('Gasto de limpeza excluído.', 'success');
+  }
+
+  function formatDate(str) {
+    const d = new Date(str + 'T00:00:00');
+    return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  // ── IMÓVEIS: RENDERIZAR / SALVAR / EDITAR / EXCLUIR ─────────────────────────
+  function renderPropertyDropdown() {
+    const list   = document.getElementById('propDropdown');
+    const footer = list.querySelector('.dropdown-footer');
+    list.querySelectorAll('.prop-option').forEach(el => el.remove());
+    document.getElementById('dropdownHeader').textContent = PROPERTIES.length ? 'Meus imóveis' : 'Registre seu primeiro imóvel';
+
+    PROPERTIES.forEach((p, i) => {
+      const div = document.createElement('div');
+      div.className = 'prop-option' + (i === currentPropIdx ? ' active' : '');
+      div.onclick = () => selectProperty(i);
+      div.innerHTML = `
+        <div class="prop-icon" style="background:${p.bg}">${p.icon}</div>
+        <div class="prop-option-info">
+          <div class="prop-option-name">${escHtml(p.name)}</div>
+          <div class="prop-option-meta">${escHtml(p.type)} · ${escHtml(p.loc)}</div>
+        </div>
+        <span class="prop-option-check">✓</span>
+        <div class="prop-option-actions">
+          <button class="prop-action-btn" onclick="editProperty(${i},event)" title="Editar">✏️</button>
+          <button class="prop-action-btn danger" onclick="deleteProperty(${i},event)" title="Remover">🗑️</button>
+        </div>`;
+      list.insertBefore(div, footer);
+    });
+  }
+
+  function editProperty(idx, event) {
+    event.stopPropagation();
+    editingPropIdx = idx;
+    const p = PROPERTIES[idx];
+    document.getElementById('propName').value     = p.name;
+    document.getElementById('propLocation').value = p.loc;
+    const typeValues = { 'Casa':'house', 'Apartamento':'apartment', 'Chalé':'chalet', 'Flat/Studio':'flat' };
+    const val = typeValues[p.type] || 'house';
+    document.querySelectorAll('input[name="propType"]').forEach(r => {
+      r.checked = r.value === val;
+      r.closest('.prop-type-opt').classList.toggle('selected', r.value === val);
+    });
+    document.querySelector('#modalAddProperty .modal-title').textContent = 'Editar Imóvel';
+    document.getElementById('btnSaveProperty').textContent = 'Salvar alterações';
+    document.getElementById('modalAddProperty').classList.add('open');
+  }
+
+  async function deleteProperty(idx, event) {
+    event.stopPropagation();
+    if (PROPERTIES.length === 1) { showToast('É necessário ter ao menos um imóvel.', 'error'); return; }
+    const prop = PROPERTIES[idx];
+    const { error } = await db.from('properties').delete().eq('id', prop.id);
+    if (error) { showToast('Erro ao remover imóvel.', 'error'); return; }
+    bookings = bookings.filter(b => b.property_id !== prop.id);
+    PROPERTIES.splice(idx, 1);
+    if (currentPropIdx >= PROPERTIES.length) currentPropIdx = PROPERTIES.length - 1;
+    updateActivePropHeader();
+    renderPropertyDropdown();
+    renderCalendar();
+    showToast(`"${prop.name}" removido.`, 'success');
+  }
+
+  function updateActivePropHeader() {
+    if (!PROPERTIES.length) return;
+    const p = PROPERTIES[currentPropIdx];
+    document.getElementById('activePropName').textContent      = p.name;
+    document.getElementById('activePropType').textContent      = p.type + ' · ' + p.loc;
+    document.getElementById('activePropIcon').textContent      = p.icon;
+    document.getElementById('activePropIcon').style.background = p.bg;
+    document.getElementById('bannerIcon').textContent          = p.icon;
+    document.getElementById('bannerName').textContent          = p.name;
+    document.getElementById('bannerLoc').textContent           = '— ' + p.loc;
+  }
+
+  async function saveProperty() {
+    const name   = document.getElementById('propName').value.trim();
+    const loc    = document.getElementById('propLocation').value.trim();
+    const typeEl = document.querySelector('input[name="propType"]:checked');
+    const typeNames = { house:'Casa', apartment:'Apartamento', chalet:'Chalé', flat:'Flat/Studio' };
+    const icons     = { house:'🏡', apartment:'🏙️', chalet:'🌿', flat:'🛋️' };
+    const bgs       = { house:'#e8f4ff', apartment:'#f0e8ff', chalet:'#e8fff0', flat:'#fff0e8' };
+    const t = typeEl?.value || 'house';
+    if (!name) { showToast('Informe o nome do imóvel.', 'error'); return; }
+
+    if (editingPropIdx !== null) {
+      const { error } = await db.from('properties').update({
+        name, type: typeNames[t], location: loc || 'Brasil', icon: icons[t], bg_color: bgs[t]
+      }).eq('id', PROPERTIES[editingPropIdx].id);
+      if (error) { showToast('Erro ao atualizar imóvel.', 'error'); return; }
+      PROPERTIES[editingPropIdx] = { ...PROPERTIES[editingPropIdx], name, type: typeNames[t], loc: loc || 'Brasil', icon: icons[t], bg: bgs[t] };
+      if (editingPropIdx === currentPropIdx) updateActivePropHeader();
+      showToast('Imóvel atualizado!', 'success');
+    } else {
+      const { data: { user } } = await db.auth.getUser();
+      const { data, error } = await db.from('properties').insert({
+        user_id: user.id, name, type: typeNames[t], location: loc || 'Brasil', icon: icons[t], bg_color: bgs[t]
+      }).select().single();
+      if (error) { showToast('Erro ao adicionar imóvel.', 'error'); return; }
+      PROPERTIES.push({ id: data.id, name, type: typeNames[t], loc: loc || 'Brasil', icon: icons[t], bg: bgs[t] });
+      showToast('Imóvel adicionado!', 'success');
+    }
+
+    renderPropertyDropdown();
+    closeAddPropertyModal();
+  }
+
+  function closeAddPropertyModal() {
+    editingPropIdx = null;
+    document.getElementById('propName').value     = '';
+    document.getElementById('propLocation').value = '';
+    document.querySelector('#modalAddProperty .modal-title').textContent = 'Novo Imóvel';
+    document.getElementById('btnSaveProperty').textContent = 'Adicionar';
+    closeModal('modalAddProperty');
+  }
+
+  // ── TOAST ────────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'toastOut .22s ease forwards';
+      setTimeout(() => toast.remove(), 220);
+    }, 3000);
+  }
+
+  // ── SIDEBAR DRAWERS ──────────────────────────────────────────────────────────
+  function toggleSidebar(side) {
+    const sidebar  = document.querySelector(side === 'left' ? '.sidebar-left' : '.sidebar-right');
+    const other    = document.querySelector(side === 'left' ? '.sidebar-right' : '.sidebar-left');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const btnLeft  = document.getElementById('btnToggleLeft');
+    const btnRight = document.getElementById('btnToggleRight');
+
+    const opening = !sidebar.classList.contains('is-open');
+
+    // Fecha a outra sidebar se estiver aberta
+    other.classList.remove('is-open');
+    if (btnLeft)  btnLeft.classList.remove('active');
+    if (btnRight) btnRight.classList.remove('active');
+
+    sidebar.classList.toggle('is-open', opening);
+    backdrop.classList.toggle('open', opening);
+
+    if (opening) {
+      const btn = side === 'left' ? btnLeft : btnRight;
+      if (btn) btn.classList.add('active');
+    }
+  }
+
+  function closeSidebar(side) {
+    const sidebar  = document.querySelector(side === 'left' ? '.sidebar-left' : '.sidebar-right');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const btn      = document.getElementById(side === 'left' ? 'btnToggleLeft' : 'btnToggleRight');
+
+    sidebar.classList.remove('is-open');
+    if (btn) btn.classList.remove('active');
+
+    // Só esconde o backdrop se nenhuma sidebar estiver aberta
+    if (!document.querySelector('.sidebar-left.is-open, .sidebar-right.is-open')) {
+      backdrop.classList.remove('open');
+    }
+  }
+
+  function closeSidebars() {
+    document.querySelector('.sidebar-left').classList.remove('is-open');
+    document.querySelector('.sidebar-right').classList.remove('is-open');
+    document.getElementById('sidebarBackdrop').classList.remove('open');
+    const bl = document.getElementById('btnToggleLeft');
+    const br = document.getElementById('btnToggleRight');
+    if (bl) bl.classList.remove('active');
+    if (br) br.classList.remove('active');
+  }
+
+  // Fecha sidebars com tecla Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSidebars();
+  });
+
+  // ── INIT ─────────────────────────────────────────────────────────────────────
+  initApp();
+</script>
+</body>
+</html>
+//

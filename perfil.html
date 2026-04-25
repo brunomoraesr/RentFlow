@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — RentFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="variables.css" />
+  <link rel="stylesheet" href="perfil.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="services/supabaseClient.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+
+  <!-- ── LOADING ── -->
+  <div id="loadingOverlay">
+    <img src="LogoRentFlow.png" alt="RentFlow" />
+    <span>Carregando dashboard...</span>
+  </div>
+
+  <!-- ── HEADER ── -->
+  <header class="dash-header">
+    <button class="btn-back" onclick="window.location.href='index.html'">← Voltar</button>
+    <img src="LogoRentFlow.png" alt="RentFlow" class="header-logo" />
+    <span class="dash-title">Dashboard Analítico</span>
+    <!-- Toggle sidebar de filtros — visível em tablet e mobile -->
+    <button class="btn-dash-toggle" id="btnDashToggle" onclick="toggleDashSidebar()" title="Filtros">☰</button>
+  </header>
+
+  <!-- ── BODY: sidebar + conteúdo ── -->
+  <div class="dash-layout">
+
+    <!-- ── SIDEBAR DE FILTROS ── -->
+    <aside class="dash-sidebar">
+
+      <!-- Cabeçalho visível apenas quando aberto como drawer -->
+      <div class="sb-overlay-header">
+        <span class="sb-overlay-title">Filtros</span>
+        <button class="sb-overlay-close" onclick="closeDashSidebar()">✕</button>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-heading">Filtros</div>
+
+        <label class="sb-label">Ano</label>
+        <select id="selYear" class="sb-select" onchange="onFilterChange()"></select>
+
+        <label class="sb-label">Período</label>
+        <select id="selMonth" class="sb-select" onchange="onFilterChange()">
+          <option value="-1">Ano todo</option>
+          <option value="0">Janeiro</option>
+          <option value="1">Fevereiro</option>
+          <option value="2">Março</option>
+          <option value="3">Abril</option>
+          <option value="4">Maio</option>
+          <option value="5">Junho</option>
+          <option value="6">Julho</option>
+          <option value="7">Agosto</option>
+          <option value="8">Setembro</option>
+          <option value="9">Outubro</option>
+          <option value="10">Novembro</option>
+          <option value="11">Dezembro</option>
+        </select>
+
+        <label class="sb-label">Imóvel</label>
+        <select id="selProp" class="sb-select" onchange="onFilterChange()">
+          <option value="">Todos os imóveis</option>
+        </select>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-heading">Status</div>
+        <div class="live-badge">
+          <div class="live-dot" id="liveDot"></div>
+          <span id="liveText">Conectando...</span>
+        </div>
+      </div>
+
+      <div class="sb-section sb-summary">
+        <div class="sb-heading">Período</div>
+        <div class="sb-sum-item"><span class="sb-sum-lbl">Reservas</span><span class="sb-sum-val" id="sbReservas">—</span></div>
+        <div class="sb-sum-item"><span class="sb-sum-lbl">Receita</span><span class="sb-sum-val" id="sbReceita">—</span></div>
+        <div class="sb-sum-item"><span class="sb-sum-lbl">Ocupação</span><span class="sb-sum-val" id="sbOcupacao">—</span></div>
+        <div class="sb-sum-item"><span class="sb-sum-lbl">Cancelamentos</span><span class="sb-sum-val" id="sbCancel">—</span></div>
+      </div>
+
+    </aside>
+
+    <!-- ── CONTEÚDO PRINCIPAL ── -->
+    <main class="dash-content">
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--accent-bar:#7c6dfa">
+          <div class="kpi-lbl">Reservas Ativas</div>
+          <div class="kpi-val" id="kpiReservas">—</div>
+          <div class="kpi-sub" id="kpiReservasSub">—</div>
+        </div>
+        <div class="kpi-card" style="--accent-bar:#4a90d9">
+          <div class="kpi-lbl">Taxa de Ocupação</div>
+          <div class="kpi-val" id="kpiOcupacao">—</div>
+          <div class="kpi-sub" id="kpiOcupacaoSub">—</div>
+        </div>
+        <div class="kpi-card" style="--accent-bar:#34c97e">
+          <div class="kpi-lbl">Receita do Período</div>
+          <div class="kpi-val" id="kpiReceita">R$ 0</div>
+          <div class="kpi-sub" id="kpiReceitaSub">—</div>
+        </div>
+        <div class="kpi-card" style="--accent-bar:#f5a623">
+          <div class="kpi-lbl">Lucro do Período</div>
+          <div class="kpi-val" id="kpiLucro">R$ 0</div>
+          <div class="kpi-sub" id="kpiLucroSub">receita − limpeza</div>
+        </div>
+      </div>
+
+      <!-- Linha 1: Evolução Financeira + Status dos Imóveis -->
+      <div class="charts-row cr-2-1">
+        <div class="chart-card">
+          <div class="chart-title">Evolução Financeira</div>
+          <div class="chart-desc">Receita mês a mês · mês selecionado destacado</div>
+          <div id="lineChartEl"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Status dos Imóveis</div>
+          <div class="chart-desc">Dias ocupados vs disponíveis no período</div>
+          <div id="donutChartEl"></div>
+        </div>
+      </div>
+
+      <!-- Linha 2: Hóspedes + Cancelamento + Tempo Vago -->
+      <div class="charts-row cr-3">
+        <div class="chart-card">
+          <div class="chart-title">Hóspedes por Reserva</div>
+          <div class="chart-desc">Frequência de hóspedes por reserva ativa</div>
+          <div id="guestsChartEl"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Taxa de Cancelamento</div>
+          <div class="chart-desc" id="cancelChartDesc">—</div>
+          <div id="cancelChartEl"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Tempo Vago por Imóvel</div>
+          <div class="chart-desc">Dias disponíveis (sem reserva ativa) no período</div>
+          <div id="vacantChartEl"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── BACKDROP SIDEBAR ── -->
+  <div id="dashSidebarBackdrop" onclick="closeDashSidebar()"></div>
+
+  <script src="perfil.js"></script>
+</body>
+</html>
