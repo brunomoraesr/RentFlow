@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — RentFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="variables.css" />
+  <link rel="stylesheet" href="admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="services/supabaseClient.js"></script>
+</head>
+<body>
+
+  <!-- LOADING -->
+  <div id="loadingOverlay">
+    <img src="LogoRentFlow.png" alt="RentFlow" />
+    <span>Carregando painel admin...</span>
+  </div>
+
+  <!-- HEADER -->
+  <header class="adm-header">
+    <button class="btn-back" onclick="window.location.href='index.html'">← Voltar</button>
+    <img src="LogoRentFlow.png" alt="RentFlow" class="header-logo" />
+    <span class="adm-title">Painel Administrativo</span>
+    <span class="adm-badge">Admin</span>
+    <button class="adm-reload" onclick="loadData()">↻ Atualizar</button>
+  </header>
+
+  <!-- MAIN -->
+  <main class="adm-main">
+
+    <!-- KPIs -->
+    <div class="adm-kpis">
+      <div class="adm-kpi">
+        <div class="adm-kpi-label">Total de Usuários</div>
+        <div class="adm-kpi-value" id="kpiUsers">—</div>
+        <div class="adm-kpi-sub" id="kpiUsersActive"></div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label">Faturamento Total</div>
+        <div class="adm-kpi-value" id="kpiRevenue">—</div>
+        <div class="adm-kpi-sub">soma de todos os usuários</div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label">Erros Registrados</div>
+        <div class="adm-kpi-value" id="kpiErrors">—</div>
+        <div class="adm-kpi-sub">últimas entradas</div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <section class="adm-section">
+      <div class="adm-section-header">
+        <span class="adm-section-title">Usuários</span>
+        <span class="adm-section-count" id="usersCount">0</span>
+        <button class="btn-add-user" onclick="openInviteModal()">+ Adicionar usuário</button>
+      </div>
+      <div id="usersWrap"></div>
+    </section>
+
+    <!-- ERROR LOGS -->
+    <section class="adm-section">
+      <div class="adm-section-header">
+        <span class="adm-section-title">Log de Erros</span>
+        <span class="adm-section-count" id="logsCount">0</span>
+      </div>
+      <div id="logsWrap"></div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: convidar usuário -->
+  <div class="adm-modal-backdrop" id="inviteModal">
+    <div class="adm-modal">
+      <div class="adm-modal-title">Adicionar Usuário</div>
+      <div class="adm-modal-desc">Um e-mail de convite será enviado para o endereço abaixo.</div>
+      <div>
+        <label for="inviteEmail">E-mail</label>
+        <input id="inviteEmail" type="email" placeholder="usuario@exemplo.com" />
+      </div>
+      <div class="adm-modal-actions">
+        <button class="btn-modal-cancel" onclick="closeInviteModal()">Cancelar</button>
+        <button class="btn-modal-confirm" onclick="confirmInvite()">Enviar convite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: confirmação de ação destrutiva -->
+  <div class="adm-modal-backdrop" id="confirmModal">
+    <div class="adm-modal">
+      <div class="adm-modal-title" id="confirmTitle">Confirmar ação</div>
+      <div class="adm-modal-desc" id="confirmDesc"></div>
+      <div class="adm-modal-actions">
+        <button class="btn-modal-cancel" onclick="closeConfirmModal()">Cancelar</button>
+        <button class="btn-modal-confirm danger" id="confirmBtn" onclick="executeConfirm()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="adm-toast" id="toast"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

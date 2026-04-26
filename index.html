@@ -76,6 +76,7 @@
     </div>
     <span id="userEmail" style="font-size:15px;color:var(--txt2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
     <a class="btn-dashboard" href="perfil.html" style="display:flex;align-items:center;padding:8px 18px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;font-family:var(--sans);font-size:15px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='rgba(124,109,250,.08)';this.style.borderColor='rgba(124,109,250,.3)'" onmouseout="this.style.background='var(--bg2)';this.style.borderColor='var(--border2)'">Dashboard</a>
+    <a id="btnAdmin" href="admin.html" style="display:none;align-items:center;padding:8px 18px;background:rgba(124,109,250,.08);border:1px solid rgba(124,109,250,.3);border-radius:8px;font-family:var(--sans);font-size:15px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='rgba(124,109,250,.16)'" onmouseout="this.style.background='rgba(124,109,250,.08)'">Admin</a>
     <a class="user-avatar" href="perfil.html" id="userAvatar" title="Ver perfil">?</a>
     <button class="btn-logout" onclick="logout()" style="padding:7px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-family:var(--sans);font-size:15px;color:var(--txt2);transition:all .15s;" onmouseover="this.style.color='var(--danger)';this.style.borderColor='rgba(255,71,87,.3)'" onmouseout="this.style.color='var(--txt2)';this.style.borderColor='var(--border)'">Sair</button>
   </div>
@@ -203,7 +204,7 @@
       <div class="toolbar-actions">
         <button class="btn-new" onclick="openAddBooking()">+ Nova reserva</button>
         <button class="btn-clean" onclick="openAddCleaning()">+ Gasto de Limpeza</button>
-        <button class="btn-ical" onclick="openIcalModal()" title="Sincronização iCal">🔗 iCal</button>
+        <button class="btn-ical" onclick="openIcalModal()" title="Sincronização iCal">🔗 Sincronizar Calendários</button>
       </div>
     </div>
 
@@ -342,7 +343,9 @@
     <div class="modal-actions">
       <button class="btn-danger" onclick="deleteCurrentBooking()">Excluir</button>
       <button class="btn-warn" id="btnCancelBooking" onclick="cancelCurrentBooking()">Cancelar Reserva</button>
-      <button class="btn-cancel" onclick="closeModal('modalViewBooking')">Fechar</button>
+      <button class="btn-confirm" id="btnEditIcal" onclick="editIcalBooking()" style="display:none">Editar</button>
+      <button class="btn-confirm" id="btnSaveIcal" onclick="saveIcalBookingEdit()" style="display:none">Salvar</button>
+      <button class="btn-cancel" id="btnCloseViewBooking" onclick="closeModal('modalViewBooking')">Fechar</button>
     </div>
   </div>
 </div>
@@ -467,7 +470,7 @@
 
     <div class="ical-section">
       <div class="ical-section-title">📥 Importar do Airbnb / Booking.com</div>
-      <div class="ical-section-desc">Cole as URLs iCal de cada plataforma para importar as reservas delas como bloqueios no seu calendário.</div>
+      <div class="ical-section-desc">Cole as URLs iCal de cada plataforma para importar as reservas delas como bloqueios no seu calendário. Clique em salvar ao lado do link antes de sincronizar.</div>
 
       <div class="form-row">
         <div class="form-group">
@@ -544,6 +547,9 @@
     const email = session.user.email;
     document.getElementById('userEmail').textContent = email.length > 24 ? email.slice(0,22)+'…' : email;
     document.getElementById('userAvatar').textContent = email.charAt(0).toUpperCase();
+    if (session.user.app_metadata?.role === 'admin') {
+      document.getElementById('btnAdmin').style.display = 'flex';
+    }
 
     await loadProperties();
     await loadBookings();
@@ -575,7 +581,8 @@
     bookings = (data || []).map(b => ({
       id:b.id, property_id:b.property_id, guest:b.guest,
       checkin:b.checkin, checkout:b.checkout, source:b.source,
-      value:Number(b.value)||0, guests:b.guests_count, notes:b.notes||''
+      value:Number(b.value)||0, guests:b.guests_count, notes:b.notes||'',
+      ical_source:b.ical_source||null
     }));
   }
 
@@ -650,11 +657,12 @@
 
       let pills = '';
       dayBookings.forEach(b => {
-        if (activeFilter !== 'todos' && b.source !== activeFilter) return;
+        if (activeFilter !== 'todos' && b.source !== activeFilter && b.ical_source !== activeFilter) return;
         const name = b.source === 'blocked' ? (b.notes || 'Bloqueio') : b.guest;
-        pills += `<div class="booking-pill pill-${b.source}" onclick="viewBooking('${b.id}', event)">`
-               + `<span class="pill-icon">${sourceIcon(b.source)}</span>`
-               + escHtml(name.slice(0,16)) + `</div>`;
+        const pillSource = b.ical_source || b.source;
+        pills += `<div class="booking-pill pill-${pillSource}" onclick="viewBooking('${b.id}', event)">`
+               + `<span class="pill-icon">${sourceIcon(pillSource)}</span>`
+               + escHtml(name) + `</div>`;
       });
 
       const cleanIds  = cleanMap[dateStr];
@@ -787,7 +795,8 @@
     let revenue = 0, revenueCount = 0;
     props.forEach(b => {
       const cin = new Date(b.checkin+'T00:00:00');
-      if (cin.getFullYear() === y && cin.getMonth() === m && b.source !== 'blocked' && b.source !== 'cancelled' && b.value) {
+      const isManualBlock = b.source === 'blocked' && !b.ical_source;
+      if (cin.getFullYear() === y && cin.getMonth() === m && !isManualBlock && b.source !== 'cancelled' && b.value) {
         revenue += b.value;
         revenueCount++;
       }
@@ -1036,18 +1045,81 @@
     const titleEl = document.getElementById('viewBookingTitle');
     titleEl.innerHTML = (b.source === 'blocked' ? 'Bloqueio' : escHtml(b.guest))
       + (isCancelled ? ' <span style="font-size:11px;padding:2px 8px;background:rgba(217,119,6,.15);color:#d97706;border-radius:4px;font-weight:600;vertical-align:middle;">CANCELADA</span>' : '');
+    const isIcal = !!b.ical_source;
     document.getElementById('btnCancelBooking').style.display = (isCancelled || b.source === 'blocked') ? 'none' : '';
+    document.getElementById('btnEditIcal').style.display  = (isIcal && !isCancelled) ? '' : 'none';
+    document.getElementById('btnSaveIcal').style.display  = 'none';
+    renderViewBookingBody(b, nights, sourceNames);
+    document.getElementById('modalViewBooking').classList.add('open');
+  }
+
+  function renderViewBookingBody(b, nights, sourceNames) {
+    const sn = sourceNames || { airbnb:'Airbnb', booking:'Booking.com', whatsapp:'WhatsApp', manual:'Manual', blocked:'Bloqueio' };
+    const n = nights ?? Math.round((new Date(b.checkout+'T00:00:00') - new Date(b.checkin+'T00:00:00')) / 86400000);
+    const originLabel = b.ical_source
+      ? ({ airbnb:'Airbnb (iCal)', booking:'Booking.com (iCal)' }[b.ical_source] || b.ical_source)
+      : (sn[b.source] || b.source);
     document.getElementById('viewBookingBody').innerHTML = `
       <div class="detail-row"><span class="detail-row-label">Hóspede</span><span class="detail-row-value">${escHtml(b.guest)}</span></div>
-      <div class="detail-row"><span class="detail-row-label">Origem</span><span class="detail-row-value" style="color:${sourceColor(b.source)}">${sourceNames[b.source]||b.source}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Origem</span><span class="detail-row-value" style="color:${sourceColor(b.ical_source||b.source)}">${originLabel}</span></div>
       <div class="detail-row"><span class="detail-row-label">Check-in</span><span class="detail-row-value">${formatDate(b.checkin)}</span></div>
       <div class="detail-row"><span class="detail-row-label">Check-out</span><span class="detail-row-value">${formatDate(b.checkout)}</span></div>
-      <div class="detail-row"><span class="detail-row-label">Noites</span><span class="detail-row-value">${nights}</span></div>
+      <div class="detail-row"><span class="detail-row-label">Noites</span><span class="detail-row-value">${n}</span></div>
       ${b.value ? `<div class="detail-row"><span class="detail-row-label">Valor</span><span class="detail-row-value">R$ ${b.value.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>` : ''}
       ${b.guests ? `<div class="detail-row"><span class="detail-row-label">Hóspedes</span><span class="detail-row-value">${b.guests}</span></div>` : ''}
       ${b.notes  ? `<div class="detail-row"><span class="detail-row-label">Obs.</span><span class="detail-row-value">${escHtml(b.notes)}</span></div>` : ''}
     `;
-    document.getElementById('modalViewBooking').classList.add('open');
+  }
+
+  function editIcalBooking() {
+    const b = bookings.find(x => x.id === currentViewId);
+    if (!b) return;
+    document.getElementById('btnEditIcal').style.display = 'none';
+    document.getElementById('btnSaveIcal').style.display = '';
+    document.getElementById('btnCancelBooking').style.display = 'none';
+    document.getElementById('viewBookingBody').innerHTML = `
+      <div class="form-grid" style="padding:0 0 4px">
+        <div class="form-field full">
+          <label class="form-label">Nome do hóspede</label>
+          <input class="form-input" id="icalGuestInput" type="text" maxlength="100"
+            value="${escHtml(b.guest)}" placeholder="Nome do hóspede" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Valor (R$)</label>
+          <input class="form-input" id="icalValueInput" type="number" min="0" step="0.01"
+            value="${b.value || ''}" placeholder="0,00" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Nº de hóspedes</label>
+          <input class="form-input" id="icalGuestsInput" type="number" min="1"
+            value="${b.guests || 1}" />
+        </div>
+        <div class="form-field full">
+          <label class="form-label">Observações</label>
+          <input class="form-input" id="icalNotesInput" type="text" maxlength="200"
+            value="${escHtml(b.notes||'')}" placeholder="Opcional" />
+        </div>
+      </div>`;
+  }
+
+  async function saveIcalBookingEdit() {
+    const b = bookings.find(x => x.id === currentViewId);
+    if (!b) return;
+    const guest  = document.getElementById('icalGuestInput').value.trim();
+    const value  = parseFloat(document.getElementById('icalValueInput').value) || 0;
+    const guests = parseInt(document.getElementById('icalGuestsInput').value) || 1;
+    const notes  = document.getElementById('icalNotesInput').value.trim();
+    if (!guest) { showToast('Informe o nome do hóspede.', 'error'); return; }
+    const { error } = await db.from('bookings')
+      .update({ guest, value, guests_count: guests, notes })
+      .eq('id', currentViewId);
+    if (error) { showToast('Erro ao salvar.', 'error'); return; }
+    Object.assign(b, { guest, value, guests: guests, notes });
+    document.getElementById('btnSaveIcal').style.display = 'none';
+    document.getElementById('btnEditIcal').style.display = '';
+    renderViewBookingBody(b);
+    renderCalendar();
+    showToast('Reserva atualizada!', 'success');
   }
 
   async function cancelCurrentBooking() {
@@ -1150,17 +1222,40 @@
 
   async function deleteProperty(idx, event) {
     event.stopPropagation();
-    if (PROPERTIES.length === 1) { showToast('É necessário ter ao menos um imóvel.', 'error'); return; }
     const prop = PROPERTIES[idx];
     const { error } = await db.from('properties').delete().eq('id', prop.id);
     if (error) { showToast('Erro ao remover imóvel.', 'error'); return; }
     bookings = bookings.filter(b => b.property_id !== prop.id);
     PROPERTIES.splice(idx, 1);
-    if (currentPropIdx >= PROPERTIES.length) currentPropIdx = PROPERTIES.length - 1;
-    updateActivePropHeader();
+    currentPropIdx = Math.max(0, Math.min(currentPropIdx, PROPERTIES.length - 1));
     renderPropertyDropdown();
-    renderCalendar();
+    if (PROPERTIES.length) {
+      updateActivePropHeader();
+      renderCalendar();
+    } else {
+      showEmptyPropertyState();
+    }
     showToast(`"${prop.name}" removido.`, 'success');
+  }
+
+  function showEmptyPropertyState() {
+    document.getElementById('activePropName').textContent      = 'Registre seu primeiro imóvel';
+    document.getElementById('activePropType').textContent      = 'Nenhum imóvel cadastrado';
+    document.getElementById('activePropIcon').textContent      = '🏠';
+    document.getElementById('activePropIcon').style.background = 'var(--bg3)';
+    document.getElementById('calGrid').innerHTML = `
+      <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  gap:16px;padding:60px 20px;text-align:center;">
+        <div style="font-size:48px">🏠</div>
+        <div style="font-size:18px;font-weight:600;color:var(--txt)">Nenhum imóvel cadastrado</div>
+        <div style="font-size:14px;color:var(--txt2)">Adicione um imóvel para começar a gerenciar suas reservas.</div>
+        <button onclick="openAddProperty()"
+          style="margin-top:4px;padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:8px;
+                 font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;">
+          + Adicionar imóvel
+        </button>
+      </div>`;
+    openAddProperty();
   }
 
   function updateActivePropHeader() {
@@ -1202,10 +1297,15 @@
       }).select().single();
       if (error) { showToast('Erro ao adicionar imóvel.', 'error'); return; }
       PROPERTIES.push({ id: data.id, name, type: typeNames[t], loc: loc || 'Brasil', icon: icons[t], bg: bgs[t] });
+      currentPropIdx = PROPERTIES.length - 1;
+      await loadBookings();
+      await loadCleaningExpenses();
       showToast('Imóvel adicionado!', 'success');
     }
 
     renderPropertyDropdown();
+    updateActivePropHeader();
+    renderCalendar();
     closeAddPropertyModal();
   }
 

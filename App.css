@@ -52,7 +52,7 @@ header {
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--txt3);
+  color: var(--txt);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -142,10 +142,7 @@ header {
 
 .prop-option-actions {
   display: flex; align-items: center; gap: 4px;
-  opacity: 0;
-  transition: opacity .15s;
 }
-.prop-option:hover .prop-option-actions { opacity: 1; }
 
 .prop-action-btn {
   width: 28px; height: 28px;
@@ -169,7 +166,7 @@ header {
   background: none;
   border: 1px dashed var(--border2);
   border-radius: 8px;
-  color: var(--txt2);
+  color: var(--txt);
   font-size: 17px;
   font-family: var(--sans);
   cursor: pointer;
@@ -223,7 +220,7 @@ header {
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--txt3);
+  color: var(--txt);
   margin-right: 3px;
   white-space: nowrap;
 }
@@ -712,17 +709,17 @@ header {
 #sidebarBackdrop.open { display: block; }
 
 /* ── TOAST ── */
-.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 9px; pointer-events: none; }
 .toast {
-  background: var(--bg3); border: 1px solid var(--border2); border-radius: 9px;
-  padding: 10px 14px; font-size: 13px;
-  display: flex; align-items: center; gap: 9px;
-  box-shadow: var(--shadow);
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px;
+  padding: 14px 18px; font-size: 15px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 6px 28px rgba(0,0,0,.16);
   animation: toastIn .22s ease;
-  pointer-events: all; max-width: 300px;
+  pointer-events: all; max-width: 400px; line-height: 1.4;
 }
-.toast.success { border-left: 3px solid var(--success); }
-.toast.error   { border-left: 3px solid var(--danger); }
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error   { border-left: 4px solid var(--danger); color: #c73b4b; }
 
 @keyframes toastIn  { from { transform: translateX(16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes toastOut { to { transform: translateX(16px); opacity: 0; } }

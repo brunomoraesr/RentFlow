@@ -54,10 +54,14 @@ function mapBooking(row) {
     checkin:      row.checkin,
     checkout:     row.checkout,
     source:       row.source,            // 'airbnb'|'booking'|'whatsapp'|'manual'|'blocked'|'cancelled'
+    ical_source:  row.ical_source || null,
     value:        Number(row.value) || 0,
     guests_count: row.guests_count || 1,
   };
 }
+
+// Bloqueio manual = source 'blocked' SEM ical_source. Importações iCal com valor devem contar como receita.
+const isManualBlock = b => b.source === 'blocked' && !b.ical_source;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // INICIALIZAÇÃO
@@ -148,7 +152,7 @@ function onFilterChange() {
 function getFilteredBookings() {
   return allBookings.filter(b => {
     const d = new Date(b.checkin);
-    return b.source !== 'blocked'
+    return !isManualBlock(b)
         && b.source !== 'cancelled'
         && d.getFullYear() === filterYear
         && (filterMonth === -1 || d.getMonth() === filterMonth)
@@ -160,7 +164,7 @@ function getFilteredBookings() {
 function getAllNonBlockedInPeriod() {
   return allBookings.filter(b => {
     const d = new Date(b.checkin);
-    return b.source !== 'blocked'
+    return !isManualBlock(b)
         && d.getFullYear() === filterYear
         && (filterMonth === -1 || d.getMonth() === filterMonth)
         && (!filterPropId || b.property_id === filterPropId);
@@ -187,7 +191,7 @@ function calcMonthlyRevenue() {
   allBookings
     .filter(b => {
       const d = new Date(b.checkin);
-      return b.source !== 'blocked'
+      return !isManualBlock(b)
           && b.source !== 'cancelled'
           && d.getFullYear() === filterYear
           && (!filterPropId || b.property_id === filterPropId);
@@ -212,7 +216,7 @@ function calcOccupancy() {
   const totalDays = (Math.round((pEnd - pStart) / 86400000) + 1) * props.length;
 
   const pool = allBookings.filter(b =>
-    b.source !== 'blocked' && b.source !== 'cancelled' &&
+    !isManualBlock(b) && b.source !== 'cancelled' &&
     (!filterPropId || b.property_id === filterPropId)
   );
 
@@ -272,7 +276,7 @@ function calcVacantByProperty() {
   const totalDays = Math.round((pEnd - pStart) / 86400000) + 1;
 
   const activeBooks = allBookings.filter(b =>
-    b.source !== 'blocked' && b.source !== 'cancelled'
+    !isManualBlock(b) && b.source !== 'cancelled'
   );
 
   return props.map(prop => {
