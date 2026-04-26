@@ -304,6 +304,12 @@
       line-height: 1.5;
     }
 
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
     .field {
       display: flex;
       flex-direction: column;
@@ -602,9 +608,19 @@
         <div class="login-title">Criar conta</div>
         <div class="login-sub">Comece a gerenciar suas reservas</div>
 
+        <div class="field-row">
+          <div class="field">
+            <label>Nome</label>
+            <input type="text" id="regFirstName" placeholder="Seu nome" autocomplete="given-name" />
+          </div>
+          <div class="field">
+            <label>Sobrenome</label>
+            <input type="text" id="regLastName" placeholder="Seu sobrenome" autocomplete="family-name" />
+          </div>
+        </div>
         <div class="field">
-          <label>Nome Completo</label>
-          <input type="text" id="regName" placeholder="Seu nome completo" autocomplete="name" />
+          <label>Celular</label>
+          <input type="tel" id="regPhone" placeholder="(11) 99999-9999" autocomplete="tel" maxlength="15" oninput="maskPhone(this)" />
         </div>
         <div class="field">
           <label>E-mail</label>
@@ -791,6 +807,7 @@
   function showError(id, msg) {
     const el = document.getElementById(id);
     el.textContent = msg;
+    el.style.cssText = '';
     el.classList.add('visible');
   }
 
@@ -850,23 +867,39 @@
     window.location.href = 'index.html';
   }
 
+  function maskPhone(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 11);
+    if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d*)$/, '($1) $2-$3');
+    else if (v.length > 2) v = v.replace(/^(\d{2})(\d*)$/, '($1) $2');
+    else if (v.length > 0) v = v.replace(/^(\d*)$/, '($1');
+    el.value = v;
+  }
+
   async function handleRegister() {
     clearError('regError');
-    const name     = document.getElementById('regName').value.trim();
-    const email    = document.getElementById('regEmail').value.trim();
-    const password = document.getElementById('regPassword').value;
-    const confirm  = document.getElementById('regConfirm').value;
+    const firstName = document.getElementById('regFirstName').value.trim();
+    const lastName  = document.getElementById('regLastName').value.trim();
+    const phone     = document.getElementById('regPhone').value.trim();
+    const email     = document.getElementById('regEmail').value.trim();
+    const password  = document.getElementById('regPassword').value;
+    const confirm   = document.getElementById('regConfirm').value;
 
-    if (!name)              { showError('regError', 'Preencha seu nome completo.'); return; }
+    if (!firstName)          { showError('regError', 'Preencha seu nome.'); return; }
+    if (!lastName)           { showError('regError', 'Preencha seu sobrenome.'); return; }
+    if (!phone)              { showError('regError', 'Preencha seu número de celular.'); return; }
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 10)  { showError('regError', 'Número de celular inválido.'); return; }
     if (!email || !password) { showError('regError', 'Preencha todos os campos.'); return; }
     if (password.length < 6) { showError('regError', 'A senha deve ter pelo menos 6 caracteres.'); return; }
     if (password !== confirm) { showError('regError', 'As senhas não coincidem.'); return; }
 
+    const fullName = `${firstName} ${lastName}`;
     setLoading('btnRegister', true);
     const { data, error } = await db.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } }
+      options: { data: { full_name: fullName, first_name: firstName, last_name: lastName, phone_number: phone } }
     });
     setLoading('btnRegister', false);
 

@@ -4,6 +4,7 @@ const SUPABASE_FN = SUPABASE_URL + '/functions/v1'
 
 let currentSession = null
 let pendingAction  = null   // { action, target_id, label }
+let allUsers       = []     // cache para filtro de busca
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 
@@ -53,9 +54,18 @@ function renderKpis(stats, errorCount) {
 
 // ── Users table ───────────────────────────────────────────────────────────────
 
-function renderUsers(users) {
-  document.getElementById('usersCount').textContent = users.length
+function filterUsers() {
+  const q = document.getElementById('usersSearch').value.trim().toLowerCase()
+  const filtered = q
+    ? allUsers.filter(u =>
+        (u.email ?? '').toLowerCase().includes(q) ||
+        (u.phone ?? '').toLowerCase().includes(q)
+      )
+    : allUsers
+  renderUsersTable(filtered)
+}
 
+function renderUsersTable(users) {
   if (!users.length) {
     document.getElementById('usersWrap').innerHTML =
       '<div class="adm-empty">Nenhum usuário encontrado.</div>'
@@ -86,6 +96,7 @@ function renderUsers(users) {
       <tr>
         <td class="email-cell">${esc(u.email ?? '—')}</td>
         <td>${statusBadge}</td>
+        <td>${esc(u.phone ?? '—')}</td>
         <td class="mono">${joinedAt}</td>
         <td class="mono">${lastSignIn}</td>
         <td>${u.properties}</td>
@@ -101,6 +112,7 @@ function renderUsers(users) {
           <tr>
             <th>E-mail</th>
             <th>Status</th>
+            <th>Celular</th>
             <th>Cadastro</th>
             <th>Último acesso</th>
             <th>Imóveis</th>
@@ -111,6 +123,12 @@ function renderUsers(users) {
         <tbody>${rows}</tbody>
       </table>
     </div>`
+}
+
+function renderUsers(users) {
+  allUsers = users
+  document.getElementById('usersCount').textContent = users.length
+  renderUsersTable(users)
 }
 
 // ── Error logs ────────────────────────────────────────────────────────────────
@@ -175,8 +193,9 @@ function closeConfirmModal() {
 
 async function executeConfirm() {
   if (!pendingAction) return
+  const action = { ...pendingAction }
   closeConfirmModal()
-  await callAction(pendingAction)
+  await callAction(action)
   await loadData()
 }
 
@@ -212,9 +231,18 @@ function closeInviteModal() {
 async function confirmInvite() {
   const email = document.getElementById('inviteEmail').value.trim()
   if (!email) { showToast('Informe um e-mail'); return }
-  closeInviteModal()
-  await callAction({ action: 'invite', email })
-  await loadData()
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('E-mail inválido'); return }
+  const btn = document.querySelector('#inviteModal .btn-modal-confirm')
+  btn.disabled = true
+  btn.textContent = 'Enviando…'
+  try {
+    await callAction({ action: 'invite', email })
+    closeInviteModal()
+    await loadData()
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Enviar convite'
+  }
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────

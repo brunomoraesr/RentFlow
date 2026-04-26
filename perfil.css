@@ -179,9 +179,10 @@
   gap: 12px;
 }
 .kpi-card {
-  background: var(--bg2); border: 1px solid var(--border);
+  background: var(--bg2); border: 1px solid var(--border2);
   border-radius: var(--radius); padding: 16px 18px;
   position: relative; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 .kpi-card::before {
   content: '';
@@ -204,8 +205,9 @@
 .cr-3   { grid-template-columns: repeat(3, 1fr); }
 
 .chart-card {
-  background: var(--bg2); border: 1px solid var(--border);
+  background: var(--bg2); border: 1px solid var(--border2);
   border-radius: var(--radius); padding: 18px 18px 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 .chart-title { font-size: 15px; font-weight: 600; color: var(--txt); }
 .chart-desc  { font-size: 13px; color: var(--txt3); margin-top: 3px; margin-bottom: 3px; min-height: 16px; }

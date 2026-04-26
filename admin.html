@@ -59,6 +59,10 @@
         <span class="adm-section-count" id="usersCount">0</span>
         <button class="btn-add-user" onclick="openInviteModal()">+ Adicionar usuário</button>
       </div>
+      <div class="adm-search-wrap">
+        <span class="adm-search-icon">🔍</span>
+        <input class="adm-search-input" id="usersSearch" type="text" placeholder="Buscar por nome, e-mail ou celular…" oninput="filterUsers()" />
+      </div>
       <div id="usersWrap"></div>
     </section>
 

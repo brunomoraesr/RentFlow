@@ -95,6 +95,22 @@
   padding: 2px 9px;
 }
 
+/* ── SEARCH BAR ── */
+.adm-search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--adm-bg2); border: 1px solid var(--adm-border);
+  border-radius: 8px; padding: 0 12px;
+  transition: border-color .15s;
+}
+.adm-search-wrap:focus-within { border-color: var(--adm-accent); }
+.adm-search-icon { font-size: 14px; flex-shrink: 0; opacity: .5; }
+.adm-search-input {
+  flex: 1; height: 38px; border: none; background: transparent;
+  font-family: var(--adm-sans); font-size: 14px; color: var(--adm-txt);
+  outline: none;
+}
+.adm-search-input::placeholder { color: var(--adm-txt3); }
+
 /* ── ADD USER BUTTON ── */
 .btn-add-user {
   margin-left: auto;

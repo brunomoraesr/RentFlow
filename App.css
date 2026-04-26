@@ -258,9 +258,7 @@ header {
 
 .no-prop-overlay {
   position: absolute; inset: 0; z-index: 10;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  background: rgba(248,248,246,.55);
+  background: rgba(248,248,246,.82);
   display: flex; align-items: center; justify-content: center;
 }
 .no-prop-card {
@@ -314,13 +312,14 @@ header {
 
 .stat-card {
   background: var(--bg2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   display: flex; align-items: center; justify-content: space-between;
-  transition: border-color .2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  transition: border-color .2s, box-shadow .2s;
 }
-.stat-card:hover { border-color: var(--border2); }
+.stat-card:hover { border-color: rgba(0,0,0,.22); box-shadow: 0 2px 8px rgba(0,0,0,.09); }
 .stat-label   { font-size: 15px; color: var(--txt2); }
 .stat-value   { font-size: 24px; font-weight: 600; letter-spacing: -.02em; line-height: 1.2; }
 .stat-sub     { font-size: 14px; color: var(--txt3); }
@@ -553,7 +552,6 @@ header {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,.65); z-index: 300;
   align-items: center; justify-content: center;
-  backdrop-filter: blur(4px);
 }
 .modal-overlay.open { display: flex; animation: fadeIn .15s; }
 
@@ -748,8 +746,6 @@ header {
   top: 56px; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,.42);
   z-index: 190;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
   animation: fadeIn .2s ease;
 }
 #sidebarBackdrop.open { display: block; }

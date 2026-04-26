@@ -500,6 +500,23 @@
   </div>
 </div>
 
+<!-- ── MODAL: Confirmar remoção de imóvel ── -->
+<div class="modal-overlay" id="modalDeleteProp">
+  <div class="modal modal-sm" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">Remover imóvel</div>
+    </div>
+    <div style="padding:0 24px 8px;font-size:14px;color:var(--txt2);line-height:1.55">
+      Tem certeza que deseja remover <strong id="deletePropName" style="color:var(--txt)"></strong>?
+      <br/><span style="color:var(--danger);font-size:13px">Todas as reservas e dados associados serão perdidos permanentemente.</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalDeleteProp')">Cancelar</button>
+      <button class="btn-confirm" id="btnConfirmDeleteProp" style="background:var(--danger)" onclick="confirmDeleteProperty()">Remover</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── TOAST CONTAINER ── -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -988,25 +1005,32 @@
     const conflict = currentPropBookings().filter(b => b.source !== 'cancelled').some(b => !(checkout <= b.checkin || checkin >= b.checkout));
     if (conflict) { showToast('Conflito com reserva existente!', 'error'); return; }
 
-    const { data: { user } } = await db.auth.getUser();
-    const { data, error } = await db.from('bookings').insert({
-      property_id: currentPropId(), user_id: user.id,
-      guest: guest || 'Bloqueio', checkin, checkout, source, value,
-      guests_count: guests, notes,
-    }).select().single();
+    const btn = document.getElementById('btnSaveBooking');
+    btn.disabled = true;
+    btn.textContent = 'Salvando…';
+    try {
+      const { data, error } = await db.from('bookings').insert({
+        property_id: currentPropId(), user_id: CURRENT_USER_ID,
+        guest: guest || 'Bloqueio', checkin, checkout, source, value,
+        guests_count: guests, notes,
+      }).select().single();
 
-    if (error) { showToast('Erro ao salvar reserva. Tente novamente.', 'error'); return; }
+      if (error) { showToast('Erro ao salvar reserva. Tente novamente.', 'error'); return; }
 
-    bookings.push({
-      id:data.id, property_id:data.property_id, guest:data.guest,
-      checkin:data.checkin, checkout:data.checkout, source:data.source,
-      value:Number(data.value)||0, guests:data.guests_count, notes:data.notes||''
-    });
+      bookings.push({
+        id:data.id, property_id:data.property_id, guest:data.guest,
+        checkin:data.checkin, checkout:data.checkout, source:data.source,
+        value:Number(data.value)||0, guests:data.guests_count, notes:data.notes||''
+      });
 
-    closeModal('modalAddBooking');
-    resetAddForm();
-    renderCalendar();
-    showToast('Reserva salva com sucesso!', 'success');
+      closeModal('modalAddBooking');
+      resetAddForm();
+      renderCalendar();
+      showToast('Reserva salva com sucesso!', 'success');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Salvar reserva';
+    }
   }
 
   function resetAddForm() {
@@ -1218,22 +1242,42 @@
     document.getElementById('modalAddProperty').classList.add('open');
   }
 
-  async function deleteProperty(idx, event) {
+  let _deletePropIdx = null;
+
+  function deleteProperty(idx, event) {
     event.stopPropagation();
+    _deletePropIdx = idx;
+    document.getElementById('deletePropName').textContent = PROPERTIES[idx].name;
+    document.getElementById('modalDeleteProp').classList.add('open');
+  }
+
+  async function confirmDeleteProperty() {
+    const idx = _deletePropIdx;
+    if (idx === null) return;
     const prop = PROPERTIES[idx];
-    const { error } = await db.from('properties').delete().eq('id', prop.id);
-    if (error) { showToast('Erro ao remover imóvel.', 'error'); return; }
-    bookings = bookings.filter(b => b.property_id !== prop.id);
-    PROPERTIES.splice(idx, 1);
-    currentPropIdx = Math.max(0, Math.min(currentPropIdx, PROPERTIES.length - 1));
-    renderPropertyDropdown();
-    if (PROPERTIES.length) {
-      updateActivePropHeader();
-      renderCalendar();
-    } else {
-      showEmptyPropertyState();
+    const btn = document.getElementById('btnConfirmDeleteProp');
+    btn.disabled = true;
+    btn.textContent = 'Removendo…';
+    try {
+      const { error } = await db.from('properties').delete().eq('id', prop.id);
+      if (error) { showToast('Erro ao remover imóvel.', 'error'); return; }
+      bookings = bookings.filter(b => b.property_id !== prop.id);
+      PROPERTIES.splice(idx, 1);
+      currentPropIdx = Math.max(0, Math.min(currentPropIdx, PROPERTIES.length - 1));
+      closeModal('modalDeleteProp');
+      renderPropertyDropdown();
+      if (PROPERTIES.length) {
+        updateActivePropHeader();
+        renderCalendar();
+      } else {
+        showEmptyPropertyState();
+      }
+      showToast(`"${prop.name}" removido.`, 'success');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Remover';
+      _deletePropIdx = null;
     }
-    showToast(`"${prop.name}" removido.`, 'success');
   }
 
   function showEmptyPropertyState() {
@@ -1279,6 +1323,10 @@
     if (name.length > 100)  { showToast('Nome do imóvel muito longo (máx 100 caracteres).', 'error'); return; }
     if (loc.length > 100)   { showToast('Localização muito longa (máx 100 caracteres).', 'error'); return; }
 
+    const btn = document.getElementById('btnSaveProperty');
+    btn.disabled = true;
+    btn.textContent = 'Salvando…';
+    try {
     if (editingPropIdx !== null) {
       const { error } = await db.from('properties').update({
         name, type: typeNames[t], location: loc || 'Brasil', icon: icons[t], bg_color: bgs[t]
@@ -1288,9 +1336,8 @@
       if (editingPropIdx === currentPropIdx) updateActivePropHeader();
       showToast('Imóvel atualizado!', 'success');
     } else {
-      const { data: { user } } = await db.auth.getUser();
       const { data, error } = await db.from('properties').insert({
-        user_id: user.id, name, type: typeNames[t], location: loc || 'Brasil', icon: icons[t], bg_color: bgs[t]
+        user_id: CURRENT_USER_ID, name, type: typeNames[t], location: loc || 'Brasil', icon: icons[t], bg_color: bgs[t]
       }).select().single();
       if (error) { showToast('Erro ao adicionar imóvel.', 'error'); return; }
       PROPERTIES.push({ id: data.id, name, type: typeNames[t], loc: loc || 'Brasil', icon: icons[t], bg: bgs[t] });
@@ -1306,6 +1353,10 @@
     updateActivePropHeader();
     renderCalendar();
     closeAddPropertyModal();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = editingPropIdx !== null ? 'Salvar' : 'Adicionar';
+    }
   }
 
   function closeAddPropertyModal() {
@@ -1410,7 +1461,6 @@
     document.getElementById('modalIcal').classList.add('open');
 
     const propId = currentPropId();
-    const { data: { user } } = await db.auth.getUser();
 
     // Carrega URLs salvas
     const { data: feeds } = await db.from('ical_feeds')
@@ -1435,7 +1485,7 @@
     let { data: tk } = await db.from('ical_tokens').select('token').eq('property_id', propId).single();
     if (!tk) {
       const { data: newTk } = await db.from('ical_tokens')
-        .insert({ property_id: propId, user_id: user.id })
+        .insert({ property_id: propId, user_id: CURRENT_USER_ID })
         .select('token').single();
       tk = newTk;
     }
@@ -1449,9 +1499,8 @@
     const url = document.getElementById(id).value.trim();
     if (!url) { showToast('Cole a URL do iCal primeiro.', 'error'); return; }
 
-    const { data: { user } } = await db.auth.getUser();
     const { error } = await db.from('ical_feeds').upsert(
-      { property_id: currentPropId(), user_id: user.id, source, ical_url: url },
+      { property_id: currentPropId(), user_id: CURRENT_USER_ID, source, ical_url: url },
       { onConflict: 'property_id,source' }
     );
     if (error) { showToast('Erro ao salvar URL.', 'error'); return; }
