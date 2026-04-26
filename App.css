@@ -808,13 +808,18 @@ header {
   .btn-dashboard      { display: none !important; }
   .user-avatar        { display: none; }
   .btn-logout         { display: none; }
-  .logo img           { height: 38px; }
-  .prop-switcher-group { flex-shrink: 1; max-width: none; min-width: 0; }
+  .logo img           { height: 34px; }
+  /* Logo escondido no mobile — só mantemos o switcher entre os dois toggles */
+  .logo               { display: none; }
+  /* Prop-switcher ocupa o espaço disponível entre os dois toggles */
+  .prop-switcher-group { flex: 1; flex-shrink: 1; min-width: 0; max-width: none; overflow: hidden; }
+  /* Header-right empurrado para a direita com só o toggle visível */
+  .header-right       { margin-left: 0; flex-shrink: 0; }
   .prop-type-label    { display: none; }
-  .prop-name          { font-size: 14px; }
-  .prop-icon          { width: 26px; height: 26px; font-size: 14px; }
-  .property-switcher-btn { padding: 7px 10px; }
-  .switcher-chevron   { font-size: 11px; }
+  .prop-name          { font-size: 13px; }
+  .prop-icon          { width: 24px; height: 24px; font-size: 13px; }
+  .property-switcher-btn { padding: 6px 8px; gap: 6px; }
+  .switcher-chevron   { font-size: 10px; }
 
   /* Mostra botão de toggle da sidebar esquerda */
   .btn-toggle-left { display: flex; }
@@ -850,10 +855,13 @@ header {
   .cal-month-label { font-size: 18px; min-width: 0; }
   .nav-btn         { width: 32px; height: 32px; font-size: 17px; }
   .btn-today       { font-size: 14px; padding: 6px 11px; }
-  .toolbar-actions { width: 100%; }
-  .btn-new         { flex: 1; justify-content: center; font-size: 14px; padding: 8px 10px; }
-  .btn-clean       { flex: 1; justify-content: center; font-size: 14px; padding: 8px 10px; }
-  .btn-ical        { font-size: 13px; padding: 7px 10px; }
+  .toolbar-actions { width: 100%; flex-wrap: wrap; gap: 6px; }
+  .cdd-wrap        { flex: 1; min-width: 100px; }
+  .cdd-btn         { width: 100%; }
+  .btn-new         { flex: 1; min-width: 110px; justify-content: center; font-size: 13px; padding: 8px 10px; }
+  .btn-clean       { flex: 1; min-width: 110px; justify-content: center; font-size: 13px; padding: 8px 10px; }
+  .btn-ical        { width: 100%; justify-content: center; font-size: 13px; padding: 8px 10px; }
+  .btn-ical-text   { display: inline; }
 
   /* Calendário */
   .cal-grid-wrap { padding: 8px 8px 16px; }
@@ -876,15 +884,18 @@ header {
 
 /* ── VERY SMALL (< 480px) ── */
 @media (max-width: 480px) {
-  header { padding: 0 8px; }
-  .prop-name { font-size: 13px; }
+  header { padding: 0 8px; gap: 6px; }
+  .prop-name { font-size: 12px; }
+  .prop-icon { width: 22px; height: 22px; font-size: 12px; }
 
   .cal-toolbar     { padding: 8px; }
   .cal-month-label { font-size: 15px; }
   .nav-btn         { width: 28px; height: 28px; font-size: 15px; }
   .btn-today       { font-size: 13px; padding: 5px 9px; }
-  .btn-new         { font-size: 13px; padding: 7px 8px; }
-  .btn-clean       { font-size: 13px; padding: 7px 8px; }
+  .btn-new         { font-size: 12px; padding: 7px 8px; }
+  .btn-clean       { font-size: 12px; padding: 7px 8px; }
+  /* iCal: esconde texto, mantém só ícone para economizar espaço */
+  .btn-ical-text   { display: none; }
 
   .cal-grid-wrap { padding: 4px 4px 10px; }
   .day-header    { font-size: 10px; padding: 6px 0; letter-spacing: 0; }

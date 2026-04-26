@@ -81,6 +81,8 @@ async function init() {
 
   try { cleaning = JSON.parse(localStorage.getItem('rental_cleaning_expenses') || '[]'); }
   catch { cleaning = []; }
+  const validPropIds = new Set(allProperties.map(p => p.id));
+  cleaning = cleaning.filter(c => validPropIds.has(c.property_id));
 
   buildYearSelect();
   buildPropSelect();
@@ -95,6 +97,8 @@ async function init() {
   window.addEventListener('storage', e => {
     if (e.key !== 'rental_cleaning_expenses') return;
     try { cleaning = JSON.parse(e.newValue || '[]'); } catch { cleaning = []; }
+    const validIds = new Set(allProperties.map(p => p.id));
+    cleaning = cleaning.filter(c => validIds.has(c.property_id));
     updateDashboard();
   });
 
@@ -112,10 +116,18 @@ async function init() {
 async function refreshData() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) return;
-  const { data: bkRaw } = await db.from('bookings').select('*').eq('user_id', session.user.id).order('checkin');
-  allBookings = (bkRaw || []).map(mapBooking);
+  const userId = session.user.id;
+  const [{ data: propsRaw }, { data: bkRaw }] = await Promise.all([
+    db.from('properties').select('*').eq('user_id', userId),
+    db.from('bookings').select('*').eq('user_id', userId).order('checkin'),
+  ]);
+  allProperties = propsRaw || [];
+  allBookings   = (bkRaw  || []).map(mapBooking);
   try { cleaning = JSON.parse(localStorage.getItem('rental_cleaning_expenses') || '[]'); } catch { cleaning = []; }
+  const validIds = new Set(allProperties.map(p => p.id));
+  cleaning = cleaning.filter(c => validIds.has(c.property_id));
   buildYearSelect();
+  buildPropSelect();
   updateDashboard();
 }
 
@@ -370,8 +382,16 @@ function updateDashboard() {
 
   // ── Tempo vago por imóvel ─────────────────────────────────────────────────
   const vacant = calcVacantByProperty();
+  const vacantMax = vacant.length ? vacant[0].totalDays : 31;
   vacantChart.updateOptions({
-    xaxis: { categories: vacant.map(p => p.name) },
+    xaxis: {
+      categories: vacant.map(p => p.name),
+      max: vacantMax,
+      labels: {
+        formatter: v => (Number.isFinite(+v) && v !== '' ? Math.round(+v) + 'd' : v),
+        style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'Figtree', sans-serif" },
+      },
+    },
   }, false, false);
   vacantChart.updateSeries([{ name: 'Dias vagos', data: vacant.map(p => p.vacantDays) }]);
 }
