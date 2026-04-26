@@ -53,18 +53,6 @@
   </div>
   </div>
 
-  <!-- Filter chips -->
-  <div class="filter-bar">
-    <span class="filter-label">Filtros</span>
-    <span class="filter-chip active" onclick="toggleFilter(this)">Todos</span>
-    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#c0373b">Airbnb</span>
-    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#1a5fa0">Booking</span>
-    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#0e8a44">WhatsApp</span>
-    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#a06b00">Manual</span>
-    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#4a4958">Bloqueados</span>
-    <span class="filter-chip" onclick="toggleFilter(this)" style="color:#d97706">Cancelados</span>
-  </div>
-
   <!-- Header right -->
   <div class="header-right">
     <!-- Toggle sidebar direita (agenda) — visível em tablet e mobile -->
@@ -154,41 +142,11 @@
       </div>
     </div>
 
-    <div class="stat-group">
-      <div class="stat-group-title">Legenda</div>
-      <div class="legend-list">
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#ff5a5f"></div>
-          Airbnb
-          <span class="legend-count" id="lgAirbnb">0</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#4a90d9"></div>
-          Booking.com
-          <span class="legend-count" id="lgBooking">0</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#25d366"></div>
-          WhatsApp
-          <span class="legend-count" id="lgWhatsapp">0</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#f5a623"></div>
-          Manual
-          <span class="legend-count" id="lgManual">0</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#555463"></div>
-          Bloqueado
-          <span class="legend-count" id="lgBlocked">0</span>
-        </div>
-      </div>
-    </div>
   </aside>
 
   <!-- Área do calendário -->
   <main class="main-area">
-    <div class="property-banner">
+    <div class="property-banner" id="propertyBanner" style="display:none">
       <span class="property-banner-icon" id="bannerIcon">🏡</span>
       <span class="property-banner-name" id="bannerName">Casa da Praia</span>
       <span class="property-banner-loc" id="bannerLoc">— Florianópolis, SC</span>
@@ -201,7 +159,24 @@
         <button class="nav-btn" onclick="changeMonth(1)">›</button>
         <button class="btn-today" onclick="goToday()">Hoje</button>
       </div>
-      <div class="toolbar-actions">
+      <div class="toolbar-actions" id="toolbarActions" style="display:none">
+        <!-- Filtro customizado -->
+        <div class="cdd-wrap" id="cddWrap">
+          <button class="cdd-btn" id="cddBtn" onclick="toggleCdd(event)">
+            <span class="cdd-label-prefix">⊟ Filtro</span>
+            <span class="cdd-selected" id="cddSelected">Todos</span>
+            <span class="cdd-arrow">▾</span>
+          </button>
+          <ul class="cdd-list" id="cddList">
+            <li class="cdd-item cdd-active" data-value="todos" onclick="selectCdd(this)">Todos</li>
+            <li class="cdd-item" data-value="airbnb"    onclick="selectCdd(this)" style="color:#c0373b">Airbnb</li>
+            <li class="cdd-item" data-value="booking"   onclick="selectCdd(this)" style="color:#1a5fa0">Booking</li>
+            <li class="cdd-item" data-value="whatsapp"  onclick="selectCdd(this)" style="color:#0e8a44">WhatsApp</li>
+            <li class="cdd-item" data-value="manual"    onclick="selectCdd(this)" style="color:#a06b00">Manual</li>
+            <li class="cdd-item" data-value="blocked"   onclick="selectCdd(this)" style="color:#4a4958">Bloqueados</li>
+            <li class="cdd-item" data-value="cancelled" onclick="selectCdd(this)" style="color:#d97706">Cancelados</li>
+          </ul>
+        </div>
         <button class="btn-new" onclick="openAddBooking()">+ Nova reserva</button>
         <button class="btn-clean" onclick="openAddCleaning()">+ Gasto de Limpeza</button>
         <button class="btn-ical" onclick="openIcalModal()" title="Sincronização iCal">🔗 Sincronizar Calendários</button>
@@ -211,6 +186,15 @@
     <div class="cal-grid-wrap">
       <div class="cal-grid" id="calGrid">
         <!-- preenchido pelo JS -->
+      </div>
+      <!-- Overlay quando não há imóvel -->
+      <div class="no-prop-overlay" id="noPropOverlay" style="display:none">
+        <div class="no-prop-card">
+          <div class="no-prop-icon">🏠</div>
+          <div class="no-prop-title">Nenhum imóvel cadastrado</div>
+          <div class="no-prop-desc">Adicione um imóvel para começar a gerenciar suas reservas.</div>
+          <button class="no-prop-btn" onclick="openAddProperty()">+ Adicionar imóvel</button>
+        </div>
       </div>
     </div>
   </main>
@@ -560,10 +544,7 @@
     if (PROPERTIES.length) {
       updateActivePropHeader();
     } else {
-      document.getElementById('activePropName').textContent      = 'Registre seu primeiro imóvel';
-      document.getElementById('activePropType').textContent      = 'Nenhum imóvel cadastrado';
-      document.getElementById('activePropIcon').textContent      = '🏠';
-      document.getElementById('activePropIcon').style.background = 'var(--bg3)';
+      showEmptyPropertyState();
     }
     renderCalendar();
   }
@@ -858,14 +839,31 @@
   });
 
   // ── FILTROS ─────────────────────────────────────────────────────────────────
-  const filterMap = { 'Todos':'todos', 'Airbnb':'airbnb', 'Booking':'booking', 'WhatsApp':'whatsapp', 'Manual':'manual', 'Bloqueados':'blocked', 'Cancelados':'cancelled' };
 
-  function toggleFilter(el) {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-    activeFilter = filterMap[el.textContent] || 'todos';
+  function toggleCdd(e) {
+    e.stopPropagation();
+    const list = document.getElementById('cddList');
+    list.style.display = list.style.display === 'block' ? 'none' : 'block';
+    document.getElementById('cddWrap').classList.toggle('cdd-open', list.style.display === 'block');
+  }
+
+  function selectCdd(item) {
+    const val = item.dataset.value;
+    activeFilter = val;
+    document.getElementById('cddSelected').textContent = item.textContent;
+    document.querySelectorAll('.cdd-item').forEach(i => i.classList.remove('cdd-active'));
+    item.classList.add('cdd-active');
+    document.getElementById('cddList').style.display = 'none';
+    document.getElementById('cddWrap').classList.toggle('cdd-open', val !== 'todos');
     renderCalendar();
   }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#cddWrap')) {
+      document.getElementById('cddList').style.display = 'none';
+      document.getElementById('cddWrap').classList.toggle('cdd-open', activeFilter !== 'todos');
+    }
+  });
 
   // ── MODAIS ──────────────────────────────────────────────────────────────────
   function openAddBooking(dateStr) {
@@ -1243,19 +1241,16 @@
     document.getElementById('activePropType').textContent      = 'Nenhum imóvel cadastrado';
     document.getElementById('activePropIcon').textContent      = '🏠';
     document.getElementById('activePropIcon').style.background = 'var(--bg3)';
-    document.getElementById('calGrid').innerHTML = `
-      <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  gap:16px;padding:60px 20px;text-align:center;">
-        <div style="font-size:48px">🏠</div>
-        <div style="font-size:18px;font-weight:600;color:var(--txt)">Nenhum imóvel cadastrado</div>
-        <div style="font-size:14px;color:var(--txt2)">Adicione um imóvel para começar a gerenciar suas reservas.</div>
-        <button onclick="openAddProperty()"
-          style="margin-top:4px;padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:8px;
-                 font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;">
-          + Adicionar imóvel
-        </button>
-      </div>`;
+    document.getElementById('noPropOverlay').style.display     = 'flex';
+    document.getElementById('propertyBanner').style.display    = 'none';
+    document.getElementById('toolbarActions').style.display    = 'none';
     openAddProperty();
+  }
+
+  function hideEmptyPropertyState() {
+    document.getElementById('noPropOverlay').style.display  = 'none';
+    document.getElementById('propertyBanner').style.display = 'flex';
+    document.getElementById('toolbarActions').style.display = 'flex';
   }
 
   function updateActivePropHeader() {
@@ -1268,6 +1263,8 @@
     document.getElementById('bannerIcon').textContent          = p.icon;
     document.getElementById('bannerName').textContent          = p.name;
     document.getElementById('bannerLoc').textContent           = '— ' + p.loc;
+    document.getElementById('propertyBanner').style.display    = 'flex';
+    document.getElementById('toolbarActions').style.display    = 'flex';
   }
 
   async function saveProperty() {
@@ -1298,6 +1295,8 @@
       if (error) { showToast('Erro ao adicionar imóvel.', 'error'); return; }
       PROPERTIES.push({ id: data.id, name, type: typeNames[t], loc: loc || 'Brasil', icon: icons[t], bg: bgs[t] });
       currentPropIdx = PROPERTIES.length - 1;
+      hideEmptyPropertyState();
+      closeAddPropertyModal();
       await loadBookings();
       await loadCleaningExpenses();
       showToast('Imóvel adicionado!', 'success');
