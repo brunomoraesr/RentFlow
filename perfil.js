@@ -302,6 +302,9 @@ function updateDashboard() {
     : `${MONTHS_FULL[filterMonth]} ${filterYear}`;
 
   // ── KPIs ─────────────────────────────────────────────────────────────────
+  setEl('kpiReceitaLbl', 'Receita de ' + period);
+  setEl('kpiLucroLbl',   'Lucro de '   + period);
+
   setEl('kpiReservas',    books.length);
   setEl('kpiReservasSub', period);
 
@@ -336,7 +339,7 @@ function updateDashboard() {
           borderColor: '#7c6dfa',
           style: {
             color: '#fff', background: '#7c6dfa',
-            fontSize: '11px', fontFamily: "'DM Sans', sans-serif",
+            fontSize: '11px', fontFamily: "'Figtree', sans-serif",
             padding: { top: 3, bottom: 3, left: 7, right: 7 },
           },
           text: MONTHS_PT[filterMonth],
@@ -391,7 +394,7 @@ function buildLineChart() {
   return new ApexCharts(document.getElementById('lineChartEl'), {
     chart: {
       type: 'area', height: 240,
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "'Figtree', sans-serif",
       toolbar: { show: false }, zoom: { enabled: false },
       animations: { enabled: true, easing: 'easeinout', speed: 500 },
       background: 'transparent',
@@ -399,13 +402,13 @@ function buildLineChart() {
     series: [{ name: 'Receita', data: new Array(12).fill(0) }],
     xaxis: {
       categories: MONTHS_PT,
-      labels: { style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'DM Sans', sans-serif" } },
+      labels: { style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'Figtree', sans-serif" } },
       axisBorder: { show: false }, axisTicks: { show: false },
     },
     yaxis: {
       labels: {
         formatter: v => 'R$' + Number(v).toLocaleString('pt-BR'),
-        style: { colors: '#a0a0ad', fontSize: '10px', fontFamily: "'DM Sans', sans-serif" },
+        style: { colors: '#a0a0ad', fontSize: '10px', fontFamily: "'Figtree', sans-serif" },
       },
     },
     stroke: { curve: 'smooth', width: 3 },
@@ -414,7 +417,7 @@ function buildLineChart() {
     markers: { size: 3, colors: ['#7c6dfa'], strokeColors: '#fff', strokeWidth: 2, hover: { size: 5 } },
     tooltip: {
       y: { formatter: v => 'R$ ' + fmtBR(v) },
-      theme: 'light', style: { fontFamily: "'DM Sans', sans-serif" },
+      theme: 'light', style: { fontFamily: "'Figtree', sans-serif" },
     },
     grid: { borderColor: 'rgba(0,0,0,.06)', strokeDashArray: 4, padding: { left: 4, right: 4, bottom: 0 } },
     dataLabels: { enabled: false },
@@ -426,7 +429,7 @@ function buildDonutChart() {
   return new ApexCharts(document.getElementById('donutChartEl'), {
     chart: {
       type: 'donut', height: 240,
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "'Figtree', sans-serif",
       animations: { enabled: true, easing: 'easeinout', speed: 500 },
       background: 'transparent',
       events: {},
@@ -444,11 +447,11 @@ function buildDonutChart() {
           size: '64%',
           labels: {
             show: true,
-            name: { fontSize: '11px', color: '#a0a0ad', fontFamily: "'DM Sans', sans-serif", offsetY: -4 },
-            value: { fontSize: '22px', fontWeight: 700, color: '#1a1a1f', fontFamily: "'DM Sans', sans-serif", formatter: v => v + 'd' },
+            name: { fontSize: '11px', color: '#a0a0ad', fontFamily: "'Figtree', sans-serif", offsetY: -4 },
+            value: { fontSize: '22px', fontWeight: 700, color: '#1a1a1f', fontFamily: "'Figtree', sans-serif", formatter: v => v + 'd' },
             total: {
               show: true, label: 'Ocupação', color: '#a0a0ad',
-              fontSize: '11px', fontFamily: "'DM Sans', sans-serif",
+              fontSize: '11px', fontFamily: "'Figtree', sans-serif",
               formatter: w => {
                 const t = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                 return t ? Math.round(w.globals.seriesTotals[0] / t * 100) + '%' : '0%';
@@ -459,7 +462,7 @@ function buildDonutChart() {
       },
     },
     legend: {
-      position: 'bottom', fontSize: '11px', fontFamily: "'DM Sans', sans-serif",
+      position: 'bottom', fontSize: '11px', fontFamily: "'Figtree', sans-serif",
       labels: { colors: '#6b6a78' }, markers: { width: 9, height: 9, radius: 3 },
     },
     dataLabels: { enabled: false },
@@ -472,7 +475,7 @@ function buildGuestsChart() {
   return new ApexCharts(document.getElementById('guestsChartEl'), {
     chart: {
       type: 'bar', height: 210,
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "'Figtree', sans-serif",
       toolbar: { show: false },
       animations: { enabled: true, easing: 'easeinout', speed: 500 },
       background: 'transparent',
@@ -480,14 +483,14 @@ function buildGuestsChart() {
     series: [{ name: 'Reservas', data: [0, 0, 0, 0, 0] }],
     xaxis: {
       categories: ['1', '2', '3', '4', '5+'],
-      labels: { style: { colors: '#a0a0ad', fontSize: '12px', fontFamily: "'DM Sans', sans-serif" } },
-      title: { text: 'Nº de hóspedes', style: { color: '#a0a0ad', fontSize: '11px', fontFamily: "'DM Sans', sans-serif" } },
+      labels: { style: { colors: '#a0a0ad', fontSize: '12px', fontFamily: "'Figtree', sans-serif" } },
+      title: { text: 'Nº de hóspedes', style: { color: '#a0a0ad', fontSize: '11px', fontFamily: "'Figtree', sans-serif" } },
       axisBorder: { show: false }, axisTicks: { show: false },
     },
     yaxis: {
       labels: {
         formatter: v => Math.round(v),
-        style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'DM Sans', sans-serif" },
+        style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'Figtree', sans-serif" },
       },
       tickAmount: 4,
     },
@@ -496,7 +499,7 @@ function buildGuestsChart() {
     dataLabels: { enabled: false },
     tooltip: {
       y: { formatter: v => `${v} reserva${v !== 1 ? 's' : ''}` },
-      theme: 'light', style: { fontFamily: "'DM Sans', sans-serif" },
+      theme: 'light', style: { fontFamily: "'Figtree', sans-serif" },
     },
     grid: { borderColor: 'rgba(0,0,0,.06)', strokeDashArray: 4, padding: { left: 4, right: 4 } },
   });
@@ -507,7 +510,7 @@ function buildCancelChart() {
   return new ApexCharts(document.getElementById('cancelChartEl'), {
     chart: {
       type: 'radialBar', height: 210,
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "'Figtree', sans-serif",
       animations: { enabled: true, easing: 'easeinout', speed: 500 },
       background: 'transparent',
     },
@@ -521,12 +524,12 @@ function buildCancelChart() {
           name: {
             show: true, offsetY: -8,
             fontSize: '11px', color: '#a0a0ad',
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Figtree', sans-serif",
           },
           value: {
             show: true, offsetY: 4,
             fontSize: '26px', fontWeight: 700, color: '#1a1a1f',
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Figtree', sans-serif",
             formatter: v => v + '%',
           },
         },
@@ -542,7 +545,7 @@ function buildVacantChart() {
   return new ApexCharts(document.getElementById('vacantChartEl'), {
     chart: {
       type: 'bar', height: 210,
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "'Figtree', sans-serif",
       toolbar: { show: false },
       animations: { enabled: true, easing: 'easeinout', speed: 500 },
       background: 'transparent',
@@ -553,7 +556,7 @@ function buildVacantChart() {
       labels: {
         // Eixo inferior mostra os valores numéricos (dias)
         formatter: v => (Number.isFinite(+v) && v !== '' ? Math.round(+v) + 'd' : v),
-        style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'DM Sans', sans-serif" },
+        style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'Figtree', sans-serif" },
       },
       min: 0,
       axisBorder: { show: false }, axisTicks: { show: false },
@@ -561,7 +564,7 @@ function buildVacantChart() {
     yaxis: {
       // Eixo esquerdo exibe os nomes dos imóveis — sem formatter numérico
       labels: {
-        style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'DM Sans', sans-serif" },
+        style: { colors: '#a0a0ad', fontSize: '11px', fontFamily: "'Figtree', sans-serif" },
         maxWidth: 120,
       },
     },
@@ -578,11 +581,11 @@ function buildVacantChart() {
     dataLabels: {
       enabled: true,
       formatter: v => v + 'd',
-      style: { fontSize: '11px', fontFamily: "'DM Sans', sans-serif", colors: ['#fff'] },
+      style: { fontSize: '11px', fontFamily: "'Figtree', sans-serif", colors: ['#fff'] },
     },
     tooltip: {
       y: { formatter: v => `${v} dia${v !== 1 ? 's' : ''} vago${v !== 1 ? 's' : ''}` },
-      theme: 'light', style: { fontFamily: "'DM Sans', sans-serif" },
+      theme: 'light', style: { fontFamily: "'Figtree', sans-serif" },
     },
     grid: { borderColor: 'rgba(0,0,0,.06)', strokeDashArray: 4, padding: { left: 4, right: 8 } },
   });

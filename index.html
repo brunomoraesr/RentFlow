@@ -6,7 +6,7 @@
   <title>RentFlow</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="variables.css" />
   <link rel="stylesheet" href="App.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -209,6 +209,7 @@
       <div class="toolbar-actions">
         <button class="btn-new" onclick="openAddBooking()">+ Nova reserva</button>
         <button class="btn-clean" onclick="openAddCleaning()">+ Gasto de Limpeza</button>
+        <button class="btn-ical" onclick="openIcalModal()" title="Sincronização iCal">🔗 iCal</button>
       </div>
     </div>
 
@@ -462,6 +463,62 @@
 <!-- ── SIDEBAR BACKDROP ── -->
 <div id="sidebarBackdrop" onclick="closeSidebars()"></div>
 
+<!-- ── MODAL: iCal Sync ── -->
+<div class="modal-overlay" id="modalIcal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔗 Sincronização iCal</div>
+      <button class="modal-close" onclick="closeModal('modalIcal')">✕</button>
+    </div>
+
+    <div class="ical-section">
+      <div class="ical-section-title">📥 Importar do Airbnb / Booking.com</div>
+      <div class="ical-section-desc">Cole as URLs iCal de cada plataforma para importar as reservas delas como bloqueios no seu calendário.</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <span class="pill-icon">🏠</span> URL iCal do Airbnb
+          </label>
+          <div class="ical-url-row">
+            <input type="url" id="icalAirbnbUrl" class="form-input" placeholder="https://www.airbnb.com/calendar/ical/…" />
+            <button class="btn-ical-save" onclick="saveIcalFeed('airbnb')">Salvar</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <span class="pill-icon">🌐</span> URL iCal do Booking.com
+          </label>
+          <div class="ical-url-row">
+            <input type="url" id="icalBookingUrl" class="form-input" placeholder="https://ical.booking.com/v1/export…" />
+            <button class="btn-ical-save" onclick="saveIcalFeed('booking')">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ical-sync-row">
+        <button class="btn-confirm" id="btnSyncNow" onclick="syncIcalNow()">🔄 Sincronizar agora</button>
+        <span class="ical-last-sync" id="icalLastSync"></span>
+      </div>
+    </div>
+
+    <div class="ical-divider"></div>
+
+    <div class="ical-section">
+      <div class="ical-section-title">📤 Exportar para Airbnb / Booking.com</div>
+      <div class="ical-section-desc">Copie esta URL e cole nas configurações do Airbnb/Booking em "Importar calendário externo". Eles bloquearão automaticamente as datas das suas reservas manuais.</div>
+      <div class="ical-url-row">
+        <input type="text" id="icalExportUrl" class="form-input" readonly placeholder="Carregando…" />
+        <button class="btn-ical-save" onclick="copyExportUrl()">Copiar</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalIcal')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── TOAST CONTAINER ── -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -600,10 +657,10 @@
       let pills = '';
       dayBookings.forEach(b => {
         if (activeFilter !== 'todos' && b.source !== activeFilter) return;
-        const name = b.source === 'blocked' ? '🔒 ' + b.notes : b.guest;
+        const name = b.source === 'blocked' ? (b.notes || 'Bloqueio') : b.guest;
         pills += `<div class="booking-pill pill-${b.source}" onclick="viewBooking('${b.id}', event)">`
-               + `<span class="pill-dot" style="background:${sourceColor(b.source)}"></span>`
-               + escHtml(name.slice(0,18)) + `</div>`;
+               + `<span class="pill-icon">${sourceIcon(b.source)}</span>`
+               + escHtml(name.slice(0,16)) + `</div>`;
       });
 
       const cleanIds  = cleanMap[dateStr];
@@ -631,6 +688,10 @@
 
   function sourceColor(s) {
     return { airbnb:'#ff5a5f', booking:'#4a90d9', whatsapp:'#25d366', manual:'#f5a623', blocked:'#555463', cancelled:'#d97706' }[s] || '#ccc';
+  }
+
+  function sourceIcon(s) {
+    return { airbnb:'🏠', booking:'🌐', whatsapp:'💬', manual:'📝', blocked:'🔒', cancelled:'❌' }[s] || '📋';
   }
 
   function escHtml(s) {
@@ -794,7 +855,7 @@
   });
 
   // ── FILTROS ─────────────────────────────────────────────────────────────────
-  const filterMap = { 'Todos':'todos', 'Airbnb':'airbnb', 'Booking.com':'booking', 'WhatsApp':'whatsapp', 'Manual':'manual', 'Bloqueados':'blocked', 'Cancelados':'cancelled' };
+  const filterMap = { 'Todos':'todos', 'Airbnb':'airbnb', 'Booking':'booking', 'WhatsApp':'whatsapp', 'Manual':'manual', 'Bloqueados':'blocked', 'Cancelados':'cancelled' };
 
   function toggleFilter(el) {
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -1242,6 +1303,111 @@
   ['click', 'keydown', 'mousemove', 'touchstart', 'scroll'].forEach(ev => {
     document.addEventListener(ev, resetInactivityTimer, { passive: true });
   });
+
+  // ── iCAL SYNC ────────────────────────────────────────────────────────────────
+  const SUPABASE_FN = SUPABASE_URL + '/functions/v1';
+
+  async function openIcalModal() {
+    if (!currentPropId()) { showToast('Selecione um imóvel primeiro.', 'error'); return; }
+
+    document.getElementById('icalAirbnbUrl').value  = '';
+    document.getElementById('icalBookingUrl').value = '';
+    document.getElementById('icalLastSync').textContent = '';
+    document.getElementById('icalExportUrl').value  = 'Carregando…';
+    document.getElementById('modalIcal').classList.add('open');
+
+    const propId = currentPropId();
+    const { data: { user } } = await db.auth.getUser();
+
+    // Carrega URLs salvas
+    const { data: feeds } = await db.from('ical_feeds')
+      .select('source, ical_url, last_synced_at')
+      .eq('property_id', propId);
+
+    if (feeds?.length) {
+      const ab = feeds.find(f => f.source === 'airbnb');
+      const bk = feeds.find(f => f.source === 'booking');
+      if (ab) document.getElementById('icalAirbnbUrl').value  = ab.ical_url;
+      if (bk) document.getElementById('icalBookingUrl').value = bk.ical_url;
+
+      const lastSync = feeds.reduce((max, f) => (!f.last_synced_at ? max : (!max || f.last_synced_at > max ? f.last_synced_at : max)), null);
+      if (lastSync) {
+        const d = new Date(lastSync);
+        document.getElementById('icalLastSync').textContent =
+          'Último sync: ' + d.toLocaleString('pt-BR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+      }
+    }
+
+    // Obtém ou cria token de exportação
+    let { data: tk } = await db.from('ical_tokens').select('token').eq('property_id', propId).single();
+    if (!tk) {
+      const { data: newTk } = await db.from('ical_tokens')
+        .insert({ property_id: propId, user_id: user.id })
+        .select('token').single();
+      tk = newTk;
+    }
+    document.getElementById('icalExportUrl').value = tk
+      ? `${SUPABASE_FN}/ical-export?token=${tk.token}`
+      : 'Erro ao gerar URL';
+  }
+
+  async function saveIcalFeed(source) {
+    const id  = source === 'airbnb' ? 'icalAirbnbUrl' : 'icalBookingUrl';
+    const url = document.getElementById(id).value.trim();
+    if (!url) { showToast('Cole a URL do iCal primeiro.', 'error'); return; }
+
+    const { data: { user } } = await db.auth.getUser();
+    const { error } = await db.from('ical_feeds').upsert(
+      { property_id: currentPropId(), user_id: user.id, source, ical_url: url },
+      { onConflict: 'property_id,source' }
+    );
+    if (error) { showToast('Erro ao salvar URL.', 'error'); return; }
+    showToast(`URL do ${source === 'airbnb' ? 'Airbnb' : 'Booking.com'} salva!`, 'success');
+  }
+
+  async function syncIcalNow() {
+    const btn = document.getElementById('btnSyncNow');
+    btn.disabled = true;
+    btn.textContent = '⏳ Sincronizando…';
+
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      const resp = await fetch(`${SUPABASE_FN}/ical-sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ property_id: currentPropId() }),
+      });
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.message || 'Erro');
+
+      const ok   = (json.results || []).filter(r => r.ok);
+      const errs = (json.results || []).filter(r => !r.ok);
+      const total = ok.reduce((s, r) => s + (r.events || 0), 0);
+
+      if (ok.length) {
+        document.getElementById('icalLastSync').textContent = 'Último sync: agora';
+        showToast(`Sync concluído! ${total} bloqueio(s) importado(s).`, 'success');
+        await loadBookings();
+        renderCalendar();
+      }
+      if (errs.length) showToast(`Erro no sync de ${errs.map(e => e.source).join(', ')}: verifique a URL.`, 'error');
+      if (!ok.length && !errs.length) showToast('Nenhum feed configurado para este imóvel.', 'error');
+    } catch (err) {
+      showToast('Erro: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔄 Sincronizar agora';
+    }
+  }
+
+  function copyExportUrl() {
+    const url = document.getElementById('icalExportUrl').value;
+    if (!url || url.startsWith('Carr')) return;
+    navigator.clipboard.writeText(url).then(() => showToast('URL copiada!', 'success'));
+  }
 
   // ── INIT ─────────────────────────────────────────────────────────────────────
   initApp().then(() => resetInactivityTimer());

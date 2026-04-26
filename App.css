@@ -359,6 +359,36 @@ header {
 .btn-clean:hover  { background: rgba(255,71,87,.18); border-color: rgba(255,71,87,.45); transform: translateY(-1px); }
 .btn-clean:active { transform: translateY(0); }
 
+.btn-ical {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: rgba(74,144,217,.1); border: 1px solid rgba(74,144,217,.3); border-radius: 8px;
+  font-size: 15px; font-weight: 500; color: #1a5fa0;
+  cursor: pointer; font-family: var(--sans); transition: all .15s;
+}
+.btn-ical:hover  { background: rgba(74,144,217,.18); border-color: rgba(74,144,217,.5); transform: translateY(-1px); }
+.btn-ical:active { transform: translateY(0); }
+
+/* ── Modal iCal ──────────────────────────────────────────────────────────── */
+.ical-section { display: flex; flex-direction: column; gap: 12px; padding: 4px 0; }
+.ical-section-title {
+  font-size: 14px; font-weight: 600; color: var(--txt);
+}
+.ical-section-desc {
+  font-size: 13px; color: var(--txt2); line-height: 1.5;
+}
+.ical-url-row { display: flex; gap: 8px; align-items: stretch; }
+.ical-url-row .form-input { flex: 1; min-width: 0; font-size: 13px; }
+.btn-ical-save {
+  padding: 0 14px; border-radius: 8px; border: 1px solid var(--border2);
+  background: var(--bg3); color: var(--txt); font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: var(--sans); white-space: nowrap; transition: all .15s;
+}
+.btn-ical-save:hover { background: var(--bg4); }
+.ical-sync-row  { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ical-last-sync { font-size: 12px; color: var(--txt2); }
+.ical-divider   { height: 1px; background: var(--border); margin: 6px 0; }
+
 .cal-grid-wrap { flex: 1; overflow-y: auto; padding: 14px 22px 22px; }
 
 .cal-grid {
@@ -410,7 +440,7 @@ header {
   cursor: pointer; transition: opacity .15s;
 }
 .booking-pill:hover { opacity: .75; }
-.pill-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.pill-icon { font-size: 11px; flex-shrink: 0; line-height: 1; }
 
 .pill-airbnb   { background: rgba(255, 90, 95, .13);  color: #c0373b; }
 .pill-booking  { background: rgba(74, 144, 217, .13); color: #1a5fa0; }
@@ -785,6 +815,7 @@ header {
   .toolbar-actions { width: 100%; }
   .btn-new         { flex: 1; justify-content: center; font-size: 14px; padding: 8px 10px; }
   .btn-clean       { flex: 1; justify-content: center; font-size: 14px; padding: 8px 10px; }
+  .btn-ical        { font-size: 13px; padding: 7px 10px; }
 
   /* Calendário */
   .cal-grid-wrap { padding: 8px 8px 16px; }
@@ -822,6 +853,6 @@ header {
   .day-cell      { min-height: 56px; padding: 3px; }
   .day-num       { font-size: 11px; width: 17px; height: 17px; }
   .booking-pill  { font-size: 9px; padding: 1px 3px; border-radius: 3px; }
-  .pill-dot      { width: 4px; height: 4px; }
+  .pill-icon     { font-size: 8px; }
   .clean-dot     { font-size: 12px; top: 2px; right: 2px; }
 }

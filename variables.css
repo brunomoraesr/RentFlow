@@ -47,11 +47,12 @@
 
   /* Tipografia */
   --mono: 'DM Mono', monospace;
-  --sans: 'DM Sans', sans-serif;
+  --sans: 'Figtree', sans-serif;
 }
 
 body {
   font-family: var(--sans);
+  font-optical-sizing: auto;
   background: var(--bg);
   color: var(--txt);
   min-height: 100vh;
