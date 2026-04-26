@@ -41,12 +41,7 @@ function parseIcal(raw: string): ICalEvent[] {
     if (end === -1) continue
     const body = block.slice(0, end)
 
-    const get = (key: string) => {
-      const m = body.match(new RegExp(`^${key}[^:;]*[;:][^\n]*:?([^\n]+)`, 'm'))
-      return m ? m[1].trim() : null
-    }
-
-    const uid     = get('UID')
+    const uid     = body.match(/^UID[^:]*:([^\n]+)/m)?.[1]?.trim()
     const start   = body.match(/^DTSTART[^:\n]*:([^\n]+)/m)?.[1]?.trim()
     const end_    = body.match(/^DTEND[^:\n]*:([^\n]+)/m)?.[1]?.trim()
     const summary = body.match(/^SUMMARY:([^\n]+)/m)?.[1]?.trim() ?? 'Bloqueado'
@@ -130,7 +125,7 @@ Deno.serve(async (req) => {
 
       // Upsert cada evento como bloqueio
       for (const ev of events) {
-        await supabaseAdmin.from('bookings').upsert(
+        const { error: upsertErr } = await supabaseAdmin.from('bookings').upsert(
           {
             property_id:  feed.property_id,
             user_id:      user.id,
@@ -146,6 +141,10 @@ Deno.serve(async (req) => {
           },
           { onConflict: 'property_id,ical_uid' }
         )
+        if (upsertErr) {
+          console.error('upsert error:', upsertErr.message, ev.uid)
+          continue
+        }
         importedUids.add(ev.uid)
       }
 
