@@ -172,7 +172,7 @@ header {
   cursor: pointer;
   transition: all .15s;
 }
-.btn-add-property:hover { border-color: var(--accent); color: var(--accent2); background: rgba(124,109,250,.06); }
+.btn-add-property:hover { border-color: var(--accent); color: var(--accent2); background: rgba(249,115,22,.06); }
 
 /* ── HEADER RIGHT ── */
 .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -210,7 +210,7 @@ header {
 }
 .user-avatar:hover {
   border-color: var(--accent2);
-  box-shadow: 0 0 0 3px rgba(124,109,250,.2);
+  box-shadow: 0 0 0 3px rgba(249,115,22,.2);
 }
 
 /* ── CUSTOM DROPDOWN (FILTRO) ── */
@@ -251,7 +251,7 @@ header {
   white-space: nowrap; transition: background .1s;
 }
 .cdd-item:hover { background: var(--bg2); }
-.cdd-item.cdd-active { background: rgba(124,109,250,.08); font-weight: 600; }
+.cdd-item.cdd-active { background: rgba(249,115,22,.08); font-weight: 600; }
 
 /* ── OVERLAY SEM IMÓVEL ── */
 .cal-grid-wrap { position: relative; }
@@ -627,7 +627,7 @@ header {
   cursor: pointer; transition: all .15s; background: var(--bg3);
 }
 .source-option:hover    { border-color: var(--border2); }
-.source-option.selected { border-color: var(--accent); background: rgba(124,109,250,.1); }
+.source-option.selected { border-color: var(--accent); background: rgba(249,115,22,.1); }
 .source-option input    { display: none; }
 .source-icon  { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
 .source-name  { font-size: 10px; font-weight: 500; color: var(--txt2); text-align: center; }
@@ -642,7 +642,7 @@ header {
   cursor: pointer; transition: all .15s; background: var(--bg3);
 }
 .prop-type-opt:hover    { border-color: var(--border2); }
-.prop-type-opt.selected { border-color: var(--accent); background: rgba(124,109,250,.1); }
+.prop-type-opt.selected { border-color: var(--accent); background: rgba(249,115,22,.1); }
 .prop-type-opt input    { display: none; }
 .prop-type-emoji { font-size: 20px; }
 .prop-type-name  { font-size: 11px; color: var(--txt2); font-weight: 500; }
@@ -711,8 +711,8 @@ header {
 /* Highlight when the corresponding sidebar is open */
 .btn-toggle-left.active,
 .btn-toggle-right.active {
-  background: rgba(124,109,250,.1);
-  border-color: rgba(124,109,250,.35);
+  background: rgba(249,115,22,.1);
+  border-color: rgba(249,115,22,.35);
   color: var(--accent);
 }
 

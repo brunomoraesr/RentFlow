@@ -32,7 +32,7 @@
 .adm-title   { font-size: 16px; font-weight: 600; color: var(--txt); }
 .adm-badge   {
   margin-left: 6px;
-  background: rgba(124,109,250,.12);
+  background: rgba(249,115,22,.12);
   color: var(--accent);
   font-size: 10px; font-weight: 700; letter-spacing: .06em;
   text-transform: uppercase;
@@ -162,7 +162,7 @@
 }
 .badge-ok     { background: rgba(52,201,126,.12); color: #1e8f55; }
 .badge-banned { background: rgba(255,71,87,.12);  color: #c73b4b; }
-.badge-admin  { background: rgba(124,109,250,.12); color: var(--accent); }
+.badge-admin  { background: rgba(249,115,22,.12); color: var(--accent); }
 
 /* ── ACTION BUTTONS ── */
 .adm-actions { display: flex; gap: 6px; flex-wrap: wrap; }

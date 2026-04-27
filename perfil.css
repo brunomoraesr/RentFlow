@@ -8,7 +8,7 @@
   display: flex; align-items: center; justify-content: center;
   flex-direction: column; gap: 14px; z-index: 9999;
 }
-#loadingOverlay img  { height: 88px; width: auto; }
+#loadingOverlay svg  { height: 52px; width: auto; }
 #loadingOverlay span { font-size: 13px; color: var(--txt2); font-family: var(--sans); }
 
 /* ── HEADER (slim, sem filtros) ── */
@@ -44,8 +44,8 @@
 }
 .btn-dash-toggle:hover { background: var(--bg3); color: var(--txt); }
 .btn-dash-toggle.active {
-  background: rgba(124,109,250,.1);
-  border-color: rgba(124,109,250,.35);
+  background: rgba(249,115,22,.1);
+  border-color: rgba(249,115,22,.35);
   color: var(--accent);
 }
 
@@ -136,7 +136,7 @@
 }
 .sb-select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124,109,250,.12);
+  box-shadow: 0 0 0 3px rgba(249,115,22,.12);
 }
 
 /* Live badge */

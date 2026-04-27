@@ -29,7 +29,7 @@
     ════════════════════════════ */
     .login-banner {
       flex: 2;
-      background: linear-gradient(140deg, #0a0d1f 0%, #0e2158 50%, #091a40 100%);
+      background: linear-gradient(140deg, #B33F05 0%, #E25A0B 40%, #F97316 75%, #FACC15 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -45,7 +45,7 @@
       position: absolute;
       width: 600px; height: 600px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(124,109,250,.16) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(249,115,22,.16) 0%, transparent 70%);
       top: -200px; right: -120px;
       pointer-events: none;
     }
@@ -73,7 +73,7 @@
       border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
       font-size: 26px;
-      box-shadow: 0 4px 24px rgba(124,109,250,.45);
+      box-shadow: 0 4px 24px rgba(249,115,22,.45);
       flex-shrink: 0;
     }
 
@@ -107,7 +107,7 @@
       max-width: 100%;
     }
 
-    .banner-title .hl-green { color: #34c97e; }
+    .banner-title .hl-green { color: #FACC15; }
 
     .banner-sub {
       font-size: 22px;
@@ -117,99 +117,110 @@
       line-height: 1.6;
     }
 
-    /* Mockup de dashboard */
-    .banner-mockup {
-      position: relative;
-      width: 100%;
-      max-width: 500px;
-      padding-top: 28px;
-      margin: 0 auto;
-    }
-
-    .mockup-badge {
+    /* ── FLOATING SCREENSHOTS ── */
+    .shot {
       position: absolute;
-      top: 0; right: 20px;
-      background: rgba(15,25,55,.75);
-      border: 1px solid rgba(52,201,126,.3);
-      border-radius: 12px;
-      padding: 11px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      backdrop-filter: blur(10px);
-      z-index: 2;
+      border-radius: 14px; overflow: hidden;
+      background: #fff;
+      box-shadow: 0 16px 36px rgba(80,20,0,.28), 0 4px 10px rgba(80,20,0,.16), 0 0 0 1px rgba(255,255,255,.14);
     }
+    .shot.s-cal  { width: 500px; left: -70px;  top: 52px;     transform: rotate(-7deg); }
+    .shot.s-dash { width: 540px; right: -105px; top: 75px;     transform: rotate(6deg);  }
+    .shot.s-ical { width: 270px; left: 65px;   bottom: 70px;  transform: rotate(5deg);  }
+    .shot.s-form { width: 250px; right: 50px;  bottom: 52px;  transform: rotate(-5deg); }
 
-    .badge-dot {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      background: #34c97e;
-      box-shadow: 0 0 8px #34c97e;
-      flex-shrink: 0;
+    /* shared inner */
+    .sm-hdr { background:#FFF8EC; border-bottom:1px solid rgba(27,42,74,.07); padding:7px 12px; display:flex; align-items:center; gap:7px; }
+    .sm-hdr-wm { font-family:'Figtree',sans-serif; font-weight:800; font-size:12px; color:#1B2A4A; }
+    .sm-hdr-wm span { color:#F97316; }
+    .sm-prop { font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; color:#1B2A4A; }
+    .sm-prop-loc { font-size:10px; color:#8A9AB8; margin-left:3px; }
+
+    /* calendar mockup */
+    .sm-toolbar { padding:7px 12px; border-bottom:1px solid rgba(0,0,0,.05); display:flex; align-items:center; gap:6px; }
+    .sm-month   { font-family:'Figtree',sans-serif; font-size:14px; font-weight:700; color:#1B2A4A; }
+    .sm-month span { color:#8A9AB8; font-weight:300; }
+    .sm-btn-new { margin-left:auto; background:#F97316; color:#fff; border-radius:6px; padding:4px 10px; font-family:'Figtree',sans-serif; font-size:10px; font-weight:600; white-space:nowrap; }
+    .sm-cal { padding:8px 10px; }
+    .sm-cal-head { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:3px; }
+    .sm-cal-head span { font-family:'Figtree',sans-serif; font-size:9px; font-weight:700; color:#8A9AB8; text-align:center; text-transform:uppercase; letter-spacing:.04em; }
+    .sm-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .sm-day { min-height:46px; border-radius:6px; padding:4px 5px; font-family:'Figtree',sans-serif; font-size:10px; color:#1B2A4A; background:#fff; border:1px solid transparent; }
+    .sm-day.other { color:#c5c5c5; background:#faf9f7; }
+    .sm-day.today .sm-dn { background:#F97316; color:#fff; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+    .sm-dn { font-weight:600; font-size:10px; margin-bottom:2px; }
+    .sm-pill { border-radius:3px; padding:1px 4px; font-size:9px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px; }
+    .sm-pill.airbnb  { background:rgba(255,90,95,.12);  color:#c0373b; }
+    .sm-pill.whatsapp{ background:rgba(37,211,102,.12); color:#0e8a44; }
+    .sm-pill.manual  { background:rgba(249,115,22,.12); color:#b34500; }
+
+    /* dashboard mockup */
+    .sm-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; padding:8px 10px; border-bottom:1px solid rgba(0,0,0,.05); }
+    .sm-kpi  { background:#FFF8EC; border-radius:6px; padding:6px 8px; }
+    .sm-kpi-lbl { font-family:'Figtree',sans-serif; font-size:7px; font-weight:700; color:#8A9AB8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+    .sm-kpi-val { font-family:'Figtree',sans-serif; font-size:13px; font-weight:700; color:#1B2A4A; }
+    .sm-charts { display:grid; grid-template-columns:1fr auto; gap:8px; padding:8px 10px; }
+    .sm-line-area { flex:1; }
+    .sm-line-title { font-family:'Figtree',sans-serif; font-size:9px; font-weight:700; color:#1B2A4A; margin-bottom:4px; }
+    .sm-line-svg { width:100%; }
+    .sm-donut-area { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .sm-donut-title { font-family:'Figtree',sans-serif; font-size:8px; font-weight:700; color:#1B2A4A; text-align:center; }
+
+    /* iCal mockup */
+    .sm-modal { padding:14px 16px; font-family:'Figtree',sans-serif; }
+    .sm-modal-title { font-size:13px; font-weight:700; color:#1B2A4A; margin-bottom:10px; }
+    .sm-modal-sec-title { font-size:10px; font-weight:700; color:#1B2A4A; margin-bottom:6px; display:flex; align-items:center; gap:4px; }
+    .sm-input-row { display:flex; gap:5px; margin-bottom:7px; }
+    .sm-input { flex:1; border:1px solid rgba(27,42,74,.12); border-radius:6px; padding:6px 8px; font-family:'Figtree',sans-serif; font-size:10px; color:#8A9AB8; background:#FFF8EC; }
+    .sm-btn-save { background:#F97316; color:#fff; border-radius:6px; padding:6px 10px; font-family:'Figtree',sans-serif; font-size:10px; font-weight:600; flex-shrink:0; }
+    .sm-btn-sync { width:100%; background:#F97316; color:#fff; border-radius:8px; padding:9px; font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; text-align:center; margin:8px 0; }
+
+    /* form mockup */
+    .sm-form { padding:14px 16px; font-family:'Figtree',sans-serif; }
+    .sm-form-title { font-size:13px; font-weight:700; color:#1B2A4A; margin-bottom:10px; }
+    .sm-sources { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:10px; }
+    .sm-src { border:1px solid rgba(27,42,74,.12); border-radius:7px; padding:6px 2px; text-align:center; font-size:9px; font-weight:500; color:#3A4A6A; }
+    .sm-src.active { border-color:#F97316; background:rgba(249,115,22,.08); color:#F97316; }
+    .sm-src-ico { font-size:14px; display:block; margin-bottom:2px; }
+    .sm-form-row { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:7px; }
+    .sm-field { display:flex; flex-direction:column; gap:3px; }
+    .sm-field label { font-size:8px; font-weight:600; color:#3A4A6A; }
+    .sm-field input { border:1px solid rgba(27,42,74,.12); border-radius:6px; padding:5px 7px; font-family:'Figtree',sans-serif; font-size:10px; color:#1B2A4A; background:#FFF8EC; }
+    .sm-btn-confirm { width:100%; background:#F97316; color:#fff; border-radius:8px; padding:9px; font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; text-align:center; margin-top:8px; }
+
+    /* ── CENTER GLASS CARD ── */
+    .center-card {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      z-index: 5;
+      width: 440px; padding: 40px 36px;
+      border-radius: 24px;
+      background: rgba(15,34,71,.60);
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 40px 80px rgba(80,20,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+      text-align: center;
     }
-
-    .badge-text {
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
+    .cpill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 14px; border-radius: 999px;
+      background: rgba(250,204,21,.18); border: 1px solid rgba(250,204,21,.5);
+      color: #FDE68A; font-size: 12px; font-weight: 600; letter-spacing: .02em;
+      margin-bottom: 22px;
     }
-
-    .badge-sub {
-      font-size: 11px;
-      color: rgba(255,255,255,.5);
-      margin-top: 1px;
-    }
-
-    .mockup-card {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.11);
-      border-radius: 16px;
-      backdrop-filter: blur(12px);
-      padding: 22px 24px 20px;
-    }
-
-    .mockup-stats {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .mockup-stat { flex: 1; text-align: center; }
-
-    .mockup-stat-val {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -.02em;
-    }
-
-    .mockup-stat-lbl {
-      font-size: 11px;
-      color: rgba(255,255,255,.45);
-      margin-top: 3px;
-    }
-
-    .mockup-divider-v {
-      width: 1px; height: 38px;
-      background: rgba(255,255,255,.1);
-      flex-shrink: 0;
-    }
-
-    .mockup-bar-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 7px;
-      height: 44px;
-    }
-
-    .mockup-bar {
-      flex: 1;
-      border-radius: 5px 5px 0 0;
-      background: rgba(124,109,250,.45);
-    }
-
-    .mockup-bar.green  { background: rgba(52,201,126,.55); }
-    .mockup-bar.accent { background: rgba(124,109,250,.8); }
+    .cpill-dot { width:6px; height:6px; border-radius:50%; background:#FACC15; box-shadow:0 0 0 4px rgba(250,204,21,.25); flex-shrink:0; }
+    .cbrand { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px; }
+    .cwm { font-family:'Figtree',sans-serif; font-weight:800; font-size:48px; letter-spacing:-.03em; color:#fff; line-height:1; }
+    .cwm span { color:#F97316; }
+    .ch1 { font-size:20px; font-weight:600; color:rgba(255,255,255,.92); line-height:1.4; margin-bottom:10px; letter-spacing:-.01em; }
+    .ch1 em { font-style:normal; color:#FACC15; font-weight:700; }
+    .cp  { font-size:14px; font-weight:500; color:rgba(255,255,255,.65); margin-bottom:26px; line-height:1.5; }
+    .cstats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(255,255,255,.1); padding-top:20px; }
+    .cstat .cv { font-family:'Figtree',sans-serif; font-weight:800; font-size:20px; color:#fff; letter-spacing:-.02em; }
+    .cstat .cv.orange { color:#F97316; }
+    .cstat .cv.yellow { color:#FACC15; }
+    .cstat .cv.green  { color:#34D399; }
+    .cstat .cl { font-size:10px; color:rgba(255,255,255,.5); font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-top:3px; }
 
     /* ════════════════════════════
        FORMULÁRIO — direita 1/3
@@ -340,7 +351,7 @@
 
     .field input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(124,109,250,.15);
+      box-shadow: 0 0 0 3px rgba(249,115,22,.15);
     }
 
     .field input::placeholder { color: var(--txt3); }
@@ -371,7 +382,7 @@
       font-family: var(--sans);
       cursor: pointer;
       transition: all .15s;
-      box-shadow: 0 2px 14px rgba(124,109,250,.35);
+      box-shadow: 0 2px 14px rgba(249,115,22,.35);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -566,8 +577,9 @@
 <!-- FORMULÁRIO (1/3 esquerda) -->
 <div class="login-side">
   <div class="login-wrap">
-    <div class="login-logo">
-      <img src="LogoRentFlow.png" alt="RentFlow" style="height:120px;width:auto;" />
+    <div class="login-logo" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <svg width="56" height="56" viewBox="0 0 120 120" fill="none"><path d="M60 14 C 70 14, 78 18, 86 26 L 102 42 C 106 46, 108 52, 108 58 L 108 92 C 108 100, 102 106, 94 106 L 26 106 C 18 106, 12 100, 12 92 L 12 58 C 12 52, 14 46, 18 42 L 34 26 C 42 18, 50 14, 60 14 Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/></svg>
+      <span style="font-family:'Figtree',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.03em;color:#1B2A4A">Rent<span style="color:#F97316">Flow</span></span>
     </div>
 
     <div class="login-card">
@@ -697,54 +709,156 @@
 
 <!-- BANNER (2/3 direita) -->
 <div class="login-banner">
-  <div class="banner-tag">✦ Plataforma completa de gestão</div>
 
-  <h1 class="banner-title">
-    Simplifique a <span class="hl-green">Gestão</span><br>
-    do seu <span class="hl-green">Aluguel</span>
-  </h1>
-
-  <p class="banner-sub">
-    Organize contratos e gerencie inquilinos em um só lugar.
-  </p>
-
-  <div class="banner-mockup">
-    <div class="mockup-badge">
-      <div class="badge-dot"></div>
-      <div>
-        <div class="badge-text">Aluguel Recebido</div>
-        <div class="badge-sub">100% dos pagamentos em dia</div>
-      </div>
+  <!-- Screenshot 1: Calendário (topo esquerda) -->
+  <div class="shot s-cal">
+    <div class="sm-hdr">
+      <svg width="14" height="14" viewBox="0 0 120 120" fill="none"><path d="M60 14 C70 14,78 18,86 26 L102 42 C106 46,108 52,108 58 L108 92 C108 100,102 106,94 106 L26 106 C18 106,12 100,12 92 L12 58 C12 52,14 46,18 42 L34 26 C42 18,50 14,60 14Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/></svg>
+      <span class="sm-hdr-wm">Rent<span>Flow</span></span>
+      <span style="margin-left:8px" class="sm-prop">Flat 605</span><span class="sm-prop-loc">— Brasil</span>
     </div>
-
-    <div class="mockup-card">
-      <div class="mockup-stats">
-        <div class="mockup-stat">
-          <div class="mockup-stat-val">R$ 8.400</div>
-          <div class="mockup-stat-lbl">Receita mensal</div>
-        </div>
-        <div class="mockup-divider-v"></div>
-        <div class="mockup-stat">
-          <div class="mockup-stat-val">3</div>
-          <div class="mockup-stat-lbl">Imóveis ativos</div>
-        </div>
-        <div class="mockup-divider-v"></div>
-        <div class="mockup-stat">
-          <div class="mockup-stat-val">12</div>
-          <div class="mockup-stat-lbl">Reservas</div>
-        </div>
-      </div>
-      <div class="mockup-bar-row">
-        <div class="mockup-bar"        style="height:55%"></div>
-        <div class="mockup-bar green"  style="height:72%"></div>
-        <div class="mockup-bar"        style="height:44%"></div>
-        <div class="mockup-bar accent" style="height:88%"></div>
-        <div class="mockup-bar green"  style="height:62%"></div>
-        <div class="mockup-bar"        style="height:76%"></div>
-        <div class="mockup-bar accent" style="height:95%"></div>
+    <div class="sm-toolbar">
+      <span style="font-size:13px;color:#8A9AB8">‹</span>
+      <span class="sm-month">Abril <span>2026</span></span>
+      <span style="font-size:13px;color:#8A9AB8">›</span>
+      <span style="margin-left:6px;border:1px solid rgba(0,0,0,.1);border-radius:5px;padding:3px 7px;font-family:Figtree,sans-serif;font-size:9px;color:#3A4A6A">Hoje</span>
+      <span class="sm-btn-new">+ Nova reserva</span>
+    </div>
+    <div class="sm-cal">
+      <div class="sm-cal-head"><span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span></div>
+      <div class="sm-cal-grid">
+        <div class="sm-day other"><div class="sm-dn">29</div></div><div class="sm-day other"><div class="sm-dn">30</div></div><div class="sm-day other"><div class="sm-dn">31</div></div>
+        <div class="sm-day"><div class="sm-dn">1</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">2</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">3</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">4</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">5</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">6</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">7</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">8</div></div>
+        <div class="sm-day"><div class="sm-dn">9</div><div class="sm-pill whatsapp">Cecília</div></div>
+        <div class="sm-day"><div class="sm-dn">10</div><div class="sm-pill whatsapp">Cecília</div></div>
+        <div class="sm-day"><div class="sm-dn">11</div></div>
+        <div class="sm-day"><div class="sm-dn">12</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">13</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">14</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">15</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">16</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">17</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">18</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">19</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">20</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">21</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">22</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">23</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">24</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">25</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">26</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day today"><div class="sm-dn">27</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">28</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">29</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">30</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day other"><div class="sm-dn">1</div></div><div class="sm-day other"><div class="sm-dn">2</div></div>
       </div>
     </div>
   </div>
+
+  <!-- Screenshot 2: Dashboard (topo direita) -->
+  <div class="shot s-dash">
+    <div class="sm-hdr">
+      <svg width="14" height="14" viewBox="0 0 120 120" fill="none"><path d="M60 14 C70 14,78 18,86 26 L102 42 C106 46,108 52,108 58 L108 92 C108 100,102 106,94 106 L26 106 C18 106,12 100,12 92 L12 58 C12 52,14 46,18 42 L34 26 C42 18,50 14,60 14Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/></svg>
+      <span class="sm-hdr-wm">Rent<span>Flow</span></span>
+      <span style="margin-left:8px;font-family:Figtree,sans-serif;font-size:11px;font-weight:600;color:#1B2A4A">Dashboard Analítico</span>
+    </div>
+    <div class="sm-kpis">
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Reservas ativas</div><div class="sm-kpi-val">2</div></div>
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Ocupação</div><div class="sm-kpi-val">93%</div></div>
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Receita</div><div class="sm-kpi-val" style="color:#F97316">R$500</div></div>
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Lucro</div><div class="sm-kpi-val" style="color:#34c97e">R$400</div></div>
+    </div>
+    <div class="sm-charts">
+      <div class="sm-line-area" style="flex:1">
+        <div class="sm-line-title">Evolução Financeira</div>
+        <svg class="sm-line-svg" height="70" viewBox="0 0 300 70">
+          <path d="M0,65 L40,60 L80,55 L120,35 L160,18 L200,58 L240,62 L280,63 L300,63" stroke="#F97316" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M0,65 L40,60 L80,55 L120,35 L160,18 L200,58 L240,62 L280,63 L300,63 L300,70 L0,70Z" fill="rgba(249,115,22,.08)"/>
+          <circle cx="160" cy="18" r="4" fill="#F97316"/>
+          <rect x="145" y="6" width="30" height="12" rx="3" fill="#F97316"/><text x="160" y="15" text-anchor="middle" font-family="Figtree" font-size="7" fill="white" font-weight="600">Abr</text>
+        </svg>
+      </div>
+      <div class="sm-donut-area" style="width:70px">
+        <div class="sm-donut-title">Status</div>
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="22" fill="none" stroke="#e8e8e4" stroke-width="8"/>
+          <circle cx="30" cy="30" r="22" fill="none" stroke="#F97316" stroke-width="8" stroke-dasharray="128 10" stroke-dashoffset="35" stroke-linecap="round"/>
+          <text x="30" y="34" text-anchor="middle" font-family="Figtree" font-size="9" fill="#1B2A4A" font-weight="700">93%</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot 3: iCal modal (baixo esquerda) -->
+  <div class="shot s-ical">
+    <div class="sm-modal">
+      <div class="sm-modal-title">🔗 Sincronização iCal</div>
+      <div class="sm-modal-sec-title">🏠 Importar do Airbnb / Booking.com</div>
+      <div style="font-family:Figtree,sans-serif;font-size:9px;color:#8A9AB8;margin-bottom:8px;line-height:1.4">Cole as URLs iCal de cada plataforma para importar como bloqueios no seu calendário.</div>
+      <div style="font-family:Figtree,sans-serif;font-size:9px;font-weight:600;color:#1B2A4A;margin-bottom:4px">🏠 URL iCal do Airbnb</div>
+      <div class="sm-input-row">
+        <div class="sm-input">https://www.airbnb.com/calendar/ical/…</div>
+        <div class="sm-btn-save">Salvar</div>
+      </div>
+      <div style="font-family:Figtree,sans-serif;font-size:9px;font-weight:600;color:#1B2A4A;margin-bottom:4px">🌐 URL iCal do Booking.com</div>
+      <div class="sm-input-row">
+        <div class="sm-input" style="color:#c5c5c5">https://ical.booking.com/v1/export…</div>
+        <div class="sm-btn-save">Salvar</div>
+      </div>
+      <div class="sm-btn-sync">🔄 Sincronizar agora</div>
+    </div>
+  </div>
+
+  <!-- Screenshot 4: Nova Reserva form (baixo direita) -->
+  <div class="shot s-form">
+    <div class="sm-form">
+      <div class="sm-form-title">Nova Reserva</div>
+      <div class="sm-sources">
+        <div class="sm-src active"><span class="sm-src-ico">🏠</span>Airbnb</div>
+        <div class="sm-src"><span class="sm-src-ico">🌐</span>Booking</div>
+        <div class="sm-src"><span class="sm-src-ico">💬</span>WhatsApp</div>
+        <div class="sm-src"><span class="sm-src-ico">✏️</span>Manual</div>
+        <div class="sm-src"><span class="sm-src-ico">🔒</span>Bloqueio</div>
+      </div>
+      <div class="sm-form-row">
+        <div class="sm-field" style="grid-column:1/-1"><label>Hóspede *</label><input value="" placeholder="Nome do hóspede" /></div>
+      </div>
+      <div class="sm-form-row">
+        <div class="sm-field"><label>Check-in *</label><input value="16/04/2026" /></div>
+        <div class="sm-field"><label>Check-out *</label><input value="" placeholder="dd/mm/aaaa" /></div>
+      </div>
+      <div class="sm-form-row">
+        <div class="sm-field"><label>Valor total (R$) *</label><input value="0,00" /></div>
+        <div class="sm-field"><label>Hóspedes</label><input value="1" /></div>
+      </div>
+      <div class="sm-btn-confirm">Salvar reserva</div>
+    </div>
+  </div>
+
+  <!-- Central glass card -->
+  <div class="center-card">
+    <div class="cpill"><span class="cpill-dot"></span> Plataforma completa de gestão</div>
+    <div class="cbrand">
+      <svg width="54" height="54" viewBox="0 0 120 120" fill="none"><path d="M60 14 C70 14,78 18,86 26 L102 42 C106 46,108 52,108 58 L108 92 C108 100,102 106,94 106 L26 106 C18 106,12 100,12 92 L12 58 C12 52,14 46,18 42 L34 26 C42 18,50 14,60 14Z" fill="#FFF8EC" opacity=".92"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#F97316"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/></svg>
+      <div class="cwm">Rent<span>Flow</span></div>
+    </div>
+    <h1 class="ch1">Simplifique a <em>Gestão</em><br>do seu <em>Aluguel</em></h1>
+    <p class="cp">Todas suas reservas no seu bolso —<br>Airbnb, Booking e diretas em um só lugar.</p>
+    <div class="cstats">
+      <div class="cstat"><div class="cv orange">R$ 8.400</div><div class="cl">Receita mensal</div></div>
+      <div class="cstat"><div class="cv yellow">3</div><div class="cl">Imóveis</div></div>
+      <div class="cstat"><div class="cv green">12</div><div class="cl">Reservas</div></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
