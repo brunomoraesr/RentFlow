@@ -12,6 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script src="services/supabaseClient.js"></script>
+  <script src="services/cities.js"></script>
 </head>
 <body>
 
@@ -52,6 +53,15 @@
       </div>
     </div>
 
+    <!-- CITIES -->
+    <section class="adm-section">
+      <div class="adm-section-header">
+        <span class="adm-section-title">🏙️ Imóveis por Cidade</span>
+        <span class="adm-section-count" id="citiesCount">0</span>
+      </div>
+      <div id="citiesWrap"></div>
+    </section>
+
     <!-- USERS -->
     <section class="adm-section">
       <div class="adm-section-header">
@@ -64,6 +74,16 @@
         <input class="adm-search-input" id="usersSearch" type="text" placeholder="Buscar por nome, e-mail ou celular…" oninput="filterUsers()" />
       </div>
       <div id="usersWrap"></div>
+    </section>
+
+    <!-- EVENTS -->
+    <section class="adm-section">
+      <div class="adm-section-header">
+        <span class="adm-section-title">Eventos e Concursos</span>
+        <span class="adm-section-count" id="eventsCount">0</span>
+        <button class="btn-add-user" onclick="openEventModal()">+ Adicionar evento</button>
+      </div>
+      <div id="eventsWrap"></div>
     </section>
 
     <!-- ERROR LOGS -->
@@ -89,6 +109,46 @@
       <div class="adm-modal-actions">
         <button class="btn-modal-cancel" onclick="closeInviteModal()">Cancelar</button>
         <button class="btn-modal-confirm" onclick="confirmInvite()">Enviar convite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: evento / concurso -->
+  <div class="adm-modal-backdrop" id="eventModal">
+    <div class="adm-modal adm-modal-lg">
+      <div class="adm-modal-title" id="eventModalTitle">Adicionar Evento</div>
+      <div class="adm-event-grid">
+        <div class="adm-field">
+          <label for="evTitle">Título <span style="color:var(--danger)">*</span></label>
+          <input id="evTitle" type="text" placeholder="Ex: Rock in Rio 2026" maxlength="120" />
+        </div>
+        <div class="adm-field">
+          <label for="evCategory">Categoria <span style="color:var(--danger)">*</span></label>
+          <select id="evCategory">
+            <option value="event">Evento</option>
+            <option value="contest">Concurso</option>
+          </select>
+        </div>
+        <div class="adm-field">
+          <label for="evLocation">Localização <span style="color:var(--danger)">*</span></label>
+          <input id="evLocation" type="text" placeholder="Cidade, UF (ex: Rio de Janeiro, RJ)" maxlength="100" />
+        </div>
+        <div class="adm-field">
+          <label for="evDateStart">Data de início <span style="color:var(--danger)">*</span></label>
+          <input id="evDateStart" type="date" />
+        </div>
+        <div class="adm-field">
+          <label for="evDateEnd">Data de término</label>
+          <input id="evDateEnd" type="date" />
+        </div>
+        <div class="adm-field adm-field-full">
+          <label for="evDesc">Descrição</label>
+          <textarea id="evDesc" placeholder="Detalhes do evento…" rows="3" maxlength="500"></textarea>
+        </div>
+      </div>
+      <div class="adm-modal-actions">
+        <button class="btn-modal-cancel" onclick="closeEventModal()">Cancelar</button>
+        <button class="btn-modal-confirm" id="btnSaveEvent" onclick="saveEvent()">Salvar</button>
       </div>
     </div>
   </div>

@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
     const [usersRes, bookingsRes, propsRes, logsRes] = await Promise.all([
       admin.auth.admin.listUsers({ perPage: 1000 }),
       admin.from('bookings').select('user_id, value, source').neq('source', 'cancelled'),
-      admin.from('properties').select('user_id'),
+      admin.from('properties').select('user_id, type, location'),
       admin.from('error_logs')
         .select('created_at, user_id, error_type, message, context')
         .order('created_at', { ascending: false })
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       user_email: emailById[l.user_id] ?? '—',
     }))
 
-    return json({ stats, users, error_logs })
+    return json({ stats, users, error_logs, properties: props })
 
   } catch (err) {
     console.error('admin-data error:', String(err))
