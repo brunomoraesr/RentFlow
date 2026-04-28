@@ -127,11 +127,14 @@
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 .adm-table {
   width: 100%; border-collapse: collapse;
   font-size: 13px;
+  min-width: 760px;
 }
 .adm-table th {
   padding: 11px 14px;
@@ -318,7 +321,12 @@
 
 /* ── RESPONSIVE ── */
 @media (max-width: 700px) {
-  .adm-kpis { grid-template-columns: 1fr; }
+  .adm-main  { padding: 16px 12px 48px; gap: 24px; }
+  .adm-kpis  { grid-template-columns: 1fr; }
+  .adm-header { padding: 0 12px; gap: 8px; }
+  .adm-title { font-size: 14px; }
+
   .adm-table th, .adm-table td { padding: 9px 10px; font-size: 12px; }
   .log-msg { max-width: 180px; }
+
 }
