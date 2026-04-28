@@ -325,6 +325,7 @@ function initCityAutocomplete(input) {
   let resultUl  = null
   let activeIdx = -1
   let debounce  = null
+  let _chosen   = false   // evita re-busca após seleção
 
   // ── Fechar ──────────────────────────────────────────────────────────────────
   function closeDropdown() {
@@ -335,10 +336,10 @@ function initCityAutocomplete(input) {
 
   // ── Selecionar cidade ────────────────────────────────────────────────────────
   function choose(label) {
+    _chosen = true
     input.value = label
     input.dispatchEvent(new Event('input', { bubbles: true }))
     closeDropdown()
-    input.focus()
   }
 
   // ── Renderizar lista ─────────────────────────────────────────────────────────
@@ -416,6 +417,7 @@ function initCityAutocomplete(input) {
 
   // ── Eventos ──────────────────────────────────────────────────────────────────
   input.addEventListener('input', () => {
+    if (_chosen) { _chosen = false; return }
     clearTimeout(debounce)
     debounce = setTimeout(() => search(input.value.trim()), 130)
   })

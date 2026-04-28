@@ -349,12 +349,12 @@ function updateDashboard() {
     annotations: filterMonth >= 0 ? {
       xaxis: [{
         x: MONTHS_PT[filterMonth],
-        borderColor: 'rgba(124,109,250,.4)',
-        fillColor:   'rgba(124,109,250,.06)',
+        borderColor: 'rgba(249,115,22,.4)',
+        fillColor:   'rgba(249,115,22,.06)',
         label: {
-          borderColor: '#7c6dfa',
+          borderColor: '#F97316',
           style: {
-            color: '#fff', background: '#7c6dfa',
+            color: '#fff', background: '#F97316',
             fontSize: '11px', fontFamily: "'Figtree', sans-serif",
             padding: { top: 3, bottom: 3, left: 7, right: 7 },
           },
@@ -437,8 +437,8 @@ function buildLineChart() {
     },
     stroke: { curve: 'smooth', width: 3 },
     fill: { type: 'gradient', gradient: { shadeIntensity: 1, type: 'vertical', opacityFrom: 0.18, opacityTo: 0.01 } },
-    colors:  ['#7c6dfa'],
-    markers: { size: 3, colors: ['#7c6dfa'], strokeColors: '#fff', strokeWidth: 2, hover: { size: 5 } },
+    colors:  ['#F97316'],
+    markers: { size: 3, colors: ['#F97316'], strokeColors: '#fff', strokeWidth: 2, hover: { size: 5 } },
     tooltip: {
       y: { formatter: v => 'R$ ' + fmtBR(v) },
       theme: 'light', style: { fontFamily: "'Figtree', sans-serif" },
@@ -460,7 +460,7 @@ function buildDonutChart() {
     },
     series: [0, 100],
     labels: ['Ocupados', 'Disponíveis'],
-    colors: ['#7c6dfa', '#e8e8e4'],
+    colors: ['#F97316', '#e8e8e4'],
     states: {
       hover:  { filter: { type: 'none' } },
       active: { filter: { type: 'none' } },
@@ -600,7 +600,7 @@ function buildVacantChart() {
         distributed: true,
       },
     },
-    colors: ['#4a90d9', '#7c6dfa', '#34c97e', '#f5a623', '#ff5a5f'],
+    colors: ['#4a90d9', '#F97316', '#34c97e', '#f5a623', '#ff5a5f'],
     legend: { show: false },
     dataLabels: {
       enabled: true,
