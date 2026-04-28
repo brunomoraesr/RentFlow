@@ -167,22 +167,25 @@ function renderUsersTable(users) {
   }).join('')
 
   document.getElementById('usersWrap').innerHTML = `
-    <div class="adm-table-wrap">
-      <table class="adm-table">
-        <thead>
-          <tr>
-            <th>E-mail</th>
-            <th>Status</th>
-            <th>Celular</th>
-            <th>Cadastro</th>
-            <th>Último acesso</th>
-            <th>Imóveis</th>
-            <th>Receita</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
+    <div class="adm-scroll-hint">← deslize para ver mais →</div>
+    <div class="adm-table-scroll">
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>E-mail</th>
+              <th>Status</th>
+              <th>Celular</th>
+              <th>Cadastro</th>
+              <th>Último acesso</th>
+              <th>Imóveis</th>
+              <th>Receita</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </div>`
 }
 
@@ -216,19 +219,22 @@ function renderLogs(logs) {
   }).join('')
 
   document.getElementById('logsWrap').innerHTML = `
-    <div class="adm-table-wrap">
-      <table class="adm-table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Usuário</th>
-            <th>Tipo</th>
-            <th>Mensagem</th>
-            <th>Contexto</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
+    <div class="adm-scroll-hint">← deslize para ver mais →</div>
+    <div class="adm-table-scroll">
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Usuário</th>
+              <th>Tipo</th>
+              <th>Mensagem</th>
+              <th>Contexto</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </div>`
 }
 
