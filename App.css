@@ -336,7 +336,11 @@ header {
 .legend-count { margin-left: auto; font-size: 15px; font-family: var(--mono); color: var(--txt3); }
 
 /* ── ÁREA DO CALENDÁRIO ── */
+<<<<<<< HEAD
 .main-area { display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); }
+=======
+.main-area { display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 
 .property-banner {
   display: flex; align-items: center; gap: 10px;
@@ -354,7 +358,10 @@ header {
   padding: 14px 22px 12px;
   border-bottom: 1px solid var(--border);
   gap: 12px; flex-wrap: wrap;
+<<<<<<< HEAD
   position: sticky; top: 0; z-index: 10; background: var(--bg);
+=======
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 }
 .cal-nav { display: flex; align-items: center; gap: 8px; }
 .cal-month-label { font-size: 23px; font-weight: 600; letter-spacing: -.03em; min-width: 196px; }
@@ -412,6 +419,7 @@ header {
 .btn-ical:hover  { background: rgba(74,144,217,.18); border-color: rgba(74,144,217,.5); transform: translateY(-1px); }
 .btn-ical:active { transform: translateY(0); }
 
+<<<<<<< HEAD
 .btn-tenant-link {
   display: flex; align-items: center; gap: 6px;
   padding: 8px 14px;
@@ -433,6 +441,8 @@ header {
 .btn-view-tenant:hover  { background: rgba(74,144,217,.2); border-color: rgba(74,144,217,.55); transform: translateY(-1px); }
 .btn-view-tenant:active { transform: translateY(0); }
 
+=======
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 /* ── Modal iCal ──────────────────────────────────────────────────────────── */
 .ical-section { display: flex; flex-direction: column; gap: 12px; padding: 4px 0; }
 .ical-section-title {
@@ -453,7 +463,11 @@ header {
 .ical-last-sync { font-size: 12px; color: var(--txt2); }
 .ical-divider   { height: 1px; background: var(--border); margin: 6px 0; }
 
+<<<<<<< HEAD
 .cal-grid-wrap { overflow-x: auto; padding: 14px 22px 0; -webkit-overflow-scrolling: touch; }
+=======
+.cal-grid-wrap { flex: 1; overflow-x: auto; overflow-y: auto; padding: 14px 22px 22px; -webkit-overflow-scrolling: touch; }
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 
 .cal-grid {
   display: grid; grid-template-columns: repeat(7, 1fr);
@@ -496,6 +510,7 @@ header {
 .today .day-num      { background: var(--accent); color: #fff; }
 .other-month .day-num { color: var(--txt3); }
 
+<<<<<<< HEAD
 /* Reservas no calendário — barras estilo Booking */
 .booking-bar {
   height: 24px;
@@ -520,6 +535,9 @@ header {
 .bar-cancelled { background: #b45309; color: #fff; opacity: .65; text-decoration: line-through; }
 
 /* Mantido para compatibilidade — pode ser removido futuramente */
+=======
+/* Reservas no calendário */
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 .booking-pill {
   font-size: 14px; font-weight: 500;
   padding: 2px 7px; border-radius: 4px;
@@ -1013,12 +1031,19 @@ header {
   .btn-ical-text   { display: inline; }
 
   /* Calendário */
+<<<<<<< HEAD
   .cal-grid-wrap  { padding: 8px 8px 0; }
   .day-header     { font-size: 11px; padding: 7px 0; letter-spacing: .03em; }
   .day-cell       { min-height: 70px; padding: 5px; }
   .day-num        { font-size: 13px; width: 20px; height: 20px; }
   .booking-bar    { height: 20px; font-size: 11px; padding: 0 5px; margin: 1px 1px 2px; }
   .bar-icon       { font-size: 9px; }
+=======
+  .cal-grid-wrap  { padding: 8px 8px 16px; }
+  .day-header     { font-size: 11px; padding: 7px 0; letter-spacing: .03em; }
+  .day-cell       { min-height: 70px; padding: 5px; }
+  .day-num        { font-size: 13px; width: 20px; height: 20px; }
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   .booking-pill   { font-size: 11px; padding: 2px 5px; }
   .clean-dot      { font-size: 14px; }
   /* Eventos */
@@ -1054,12 +1079,19 @@ header {
   .btn-ical-text   { display: none; }
   .btn-ical        { flex: 0 0 40px; }
 
+<<<<<<< HEAD
   .cal-grid-wrap { padding: 4px 4px 0; }
   .day-header    { font-size: 10px; padding: 6px 0; letter-spacing: 0; }
   .day-cell      { min-height: 56px; padding: 3px; }
   .day-num       { font-size: 11px; width: 17px; height: 17px; }
   .booking-bar   { height: 17px; font-size: 9px; padding: 0 3px; margin: 1px 1px 1px; }
   .bar-icon      { font-size: 8px; }
+=======
+  .cal-grid-wrap { padding: 4px 4px 10px; }
+  .day-header    { font-size: 10px; padding: 6px 0; letter-spacing: 0; }
+  .day-cell      { min-height: 56px; padding: 3px; }
+  .day-num       { font-size: 11px; width: 17px; height: 17px; }
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   .booking-pill  { font-size: 9px; padding: 1px 3px; border-radius: 3px; }
   .pill-icon     { font-size: 8px; }
   .clean-dot     { font-size: 12px; top: 2px; right: 2px; }

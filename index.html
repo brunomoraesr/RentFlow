@@ -361,8 +361,11 @@
     <div class="modal-actions">
       <button class="btn-danger" onclick="deleteCurrentBooking()">Excluir</button>
       <button class="btn-warn" id="btnCancelBooking" onclick="cancelCurrentBooking()">Cancelar Reserva</button>
+<<<<<<< HEAD
       <button class="btn-tenant-link" id="btnGenTenantLink" onclick="generateTenantLink()">🔗 Cadastrar Inquilino</button>
       <button class="btn-view-tenant" id="btnViewTenant" onclick="openInlineTenantModal()" style="display:none">👤 Ver Inquilino</button>
+=======
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
       <button class="btn-confirm" id="btnEditIcal" onclick="editIcalBooking()" style="display:none">Editar</button>
       <button class="btn-confirm" id="btnSaveIcal" onclick="saveIcalBookingEdit()" style="display:none">Salvar</button>
       <button class="btn-cancel" id="btnCloseViewBooking" onclick="closeModal('modalViewBooking')">Fechar</button>
@@ -370,6 +373,7 @@
   </div>
 </div>
 
+<<<<<<< HEAD
 <!-- ── MODAL: Detalhe do Inquilino ── -->
 <div class="modal-overlay" id="modalTenantDetail">
   <div class="modal modal-sm">
@@ -414,6 +418,8 @@
   </div>
 </div>
 
+=======
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 <!-- ── MODAL: Adicionar Imóvel ── -->
 <div class="modal-overlay" id="modalAddProperty">
   <div class="modal modal-sm">
@@ -692,16 +698,27 @@
   const DAYS_PT   = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
   function renderCalendar() {
+<<<<<<< HEAD
     const grid  = document.getElementById('calGrid');
     const label = document.getElementById('calMonthLabel');
     label.innerHTML = `${MONTHS_PT[viewMonth]} <span>${viewYear}</span>`;
 
+=======
+    const grid = document.getElementById('calGrid');
+    const label = document.getElementById('calMonthLabel');
+    label.innerHTML = `${MONTHS_PT[viewMonth]} <span>${viewYear}</span>`;
+
+    const props = currentPropBookings();
+
+    // Mapa de limpezas: "YYYY-MM-DD" → [id, ...]
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
     const cleanMap = {};
     currentPropCleaningExpenses().forEach(c => {
       if (!cleanMap[c.date]) cleanMap[c.date] = [];
       cleanMap[c.date].push(c.id);
     });
 
+<<<<<<< HEAD
     const filteredBookings = currentPropBookings().filter(b =>
       activeFilter === 'todos' || b.source === activeFilter || b.ical_source === activeFilter
     );
@@ -725,10 +742,22 @@
       while (d < end) {
         const ds = d.toISOString().slice(0, 10);
         if (!tintMap[ds]) tintMap[ds] = tint;
+=======
+    // Mapa: "YYYY-MM-DD" → [booking, ...]
+    const dayMap = {};
+    props.forEach(b => {
+      let d = new Date(b.checkin + 'T00:00:00');
+      const end = new Date(b.checkout + 'T00:00:00');
+      while (d < end) {
+        const key = d.toISOString().slice(0,10);
+        if (!dayMap[key]) dayMap[key] = [];
+        dayMap[key].push(b);
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
         d.setDate(d.getDate() + 1);
       }
     });
 
+<<<<<<< HEAD
     const firstDay    = new Date(viewYear, viewMonth, 1).getDay();
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const daysInPrev  = new Date(viewYear, viewMonth, 0).getDate();
@@ -816,6 +845,54 @@
       });
 
       gridRow += maxSub + 1; // avança pelo número de sub-níveis usados
+=======
+    // Primeiro dia do mês e total de dias
+    const firstDay  = new Date(viewYear, viewMonth, 1).getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const daysInPrev  = new Date(viewYear, viewMonth, 0).getDate();
+    const todayStr    = new Date().toISOString().slice(0,10);
+
+    let html = DAYS_PT.map(d => `<div class="day-header">${d}</div>`).join('');
+
+    // Dias do mês anterior
+    for (let i = firstDay - 1; i >= 0; i--) {
+      html += `<div class="day-cell other-month"><span class="day-num">${daysInPrev - i}</span></div>`;
+    }
+
+    // Dias do mês atual
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr  = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday  = dateStr === todayStr;
+      const dayBookings = dayMap[dateStr] || [];
+      const cls = ['day-cell', isToday ? 'today' : ''].filter(Boolean).join(' ');
+
+      let pills = '';
+      dayBookings.forEach(b => {
+        if (activeFilter !== 'todos' && b.source !== activeFilter && b.ical_source !== activeFilter) return;
+        const name = b.source === 'blocked' ? (b.notes || 'Bloqueio') : b.guest;
+        const pillSource = b.ical_source || b.source;
+        pills += `<div class="booking-pill pill-${pillSource}" onclick="viewBooking('${b.id}', event)">`
+               + `<span class="pill-icon">${sourceIcon(pillSource)}</span>`
+               + escHtml(name) + `</div>`;
+      });
+
+      const cleanIds  = cleanMap[dateStr];
+      const cleanIcon = cleanIds
+        ? `<span class="clean-dot" title="Ver limpeza" onclick="viewCleaning('${cleanIds[0]}',event)">🧹</span>`
+        : '';
+      html += `<div class="${cls}" onclick="cellClick('${dateStr}')">
+                 <span class="day-num">${d}</span>
+                 ${cleanIcon}
+                 ${pills}
+               </div>`;
+    }
+
+    // Dias do mês seguinte
+    const totalCells = firstDay + daysInMonth;
+    const remaining  = (7 - (totalCells % 7)) % 7;
+    for (let d = 1; d <= remaining; d++) {
+      html += `<div class="day-cell other-month"><span class="day-num">${d}</span></div>`;
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
     }
 
     grid.innerHTML = html;
@@ -849,6 +926,7 @@
   }
 
   function cellClick(dateStr) {
+<<<<<<< HEAD
     const occupied = currentPropBookings().find(b =>
       b.source !== 'cancelled' && b.checkin <= dateStr && b.checkout > dateStr
     );
@@ -856,6 +934,8 @@
       viewBooking(occupied.id, null);
       return;
     }
+=======
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
     document.getElementById('checkinDate').value  = dateStr;
     document.getElementById('checkoutDate').value = '';
     updateNightsPreview();
@@ -1147,6 +1227,7 @@
     if (guests < 1 || guests > 50)      { showToast('Número de hóspedes inválido (1-50).', 'error'); return; }
     if (!currentPropId())               { showToast('Nenhum imóvel selecionado.', 'error'); return; }
 
+<<<<<<< HEAD
     // Verifica conflito em tempo real no banco (evita race conditions e conflitos de iCal)
     const { data: overlapping, error: checkErr } = await db
       .from('bookings')
@@ -1162,6 +1243,10 @@
       showToast(`Conflito: "${who}" já ocupa ${c.checkin} → ${c.checkout}.`, 'error');
       return;
     }
+=======
+    const conflict = currentPropBookings().filter(b => b.source !== 'cancelled').some(b => !(checkout <= b.checkin || checkin >= b.checkout));
+    if (conflict) { showToast('Conflito com reserva existente!', 'error'); return; }
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 
     const btn = document.getElementById('btnSaveBooking');
     btn.disabled = true;
@@ -1226,6 +1311,7 @@
     titleEl.innerHTML = (b.source === 'blocked' ? 'Bloqueio' : escHtml(b.guest))
       + (isCancelled ? ' <span style="font-size:11px;padding:2px 8px;background:rgba(217,119,6,.15);color:#d97706;border-radius:4px;font-weight:600;vertical-align:middle;">CANCELADA</span>' : '');
     const isIcal = !!b.ical_source;
+<<<<<<< HEAD
     document.getElementById('btnCancelBooking').style.display  = (isCancelled || b.source === 'blocked') ? 'none' : '';
     document.getElementById('btnEditIcal').style.display       = (isIcal && !isCancelled) ? '' : 'none';
     document.getElementById('btnSaveIcal').style.display       = 'none';
@@ -1240,6 +1326,11 @@
         document.getElementById('btnViewTenant').style.display    = hasTenant ? '' : 'none';
       });
     }
+=======
+    document.getElementById('btnCancelBooking').style.display = (isCancelled || b.source === 'blocked') ? 'none' : '';
+    document.getElementById('btnEditIcal').style.display  = (isIcal && !isCancelled) ? '' : 'none';
+    document.getElementById('btnSaveIcal').style.display  = 'none';
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
     renderViewBookingBody(b, nights, sourceNames);
     document.getElementById('modalViewBooking').classList.add('open');
   }
@@ -1806,6 +1897,7 @@
     navigator.clipboard.writeText(url).then(() => showToast('URL copiada!', 'success'));
   }
 
+<<<<<<< HEAD
   // ── LINK DE CADASTRO DO INQUILINO ────────────────────────────────────────────
   async function openInlineTenantModal() {
     const { data } = await db
@@ -1873,6 +1965,8 @@
       .catch(() => { document.getElementById('tenantLinkUrl').select(); document.execCommand('copy'); showToast('Link copiado!', 'success'); });
   }
 
+=======
+>>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   // ── INIT ─────────────────────────────────────────────────────────────────────
   initApp().then(() => resetInactivityTimer());
 </script>
