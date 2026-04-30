@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Inquilino — RentFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="variables.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="services/supabaseClient.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 16px 60px;
+    }
+
+    .tf-logo {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 32px;
+    }
+    .tf-logo-text {
+      font-weight: 800; font-size: 22px; letter-spacing: -.03em; color: var(--txt);
+    }
+    .tf-logo-text span { color: #F97316; }
+
+    .tf-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 32px rgba(0,0,0,.08);
+      width: 100%; max-width: 480px;
+      padding: 32px 28px;
+    }
+
+    /* ── Estados ── */
+    .tf-state { display: none; flex-direction: column; align-items: center; gap: 16px; text-align: center; padding: 16px 0; }
+    .tf-state.active { display: flex; }
+
+    .tf-spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border2);
+      border-top-color: #F97316;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tf-state-icon { font-size: 48px; line-height: 1; }
+    .tf-state-title { font-size: 18px; font-weight: 700; color: var(--txt); }
+    .tf-state-desc  { font-size: 14px; color: var(--txt2); line-height: 1.6; }
+
+    /* ── Cabeçalho do formulário ── */
+    .tf-header { margin-bottom: 24px; }
+    .tf-prop-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      color: #F97316; background: rgba(249,115,22,.1);
+      padding: 4px 10px; border-radius: 99px; margin-bottom: 10px;
+    }
+    .tf-title { font-size: 22px; font-weight: 700; letter-spacing: -.02em; color: var(--txt); }
+    .tf-subtitle { font-size: 14px; color: var(--txt2); margin-top: 6px; line-height: 1.5; }
+
+    /* ── Campos ── */
+    .tf-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .tf-field { display: flex; flex-direction: column; gap: 5px; }
+    .tf-label {
+      font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+      color: var(--txt2);
+    }
+    .tf-label .req { color: #e03d42; }
+
+    .tf-input {
+      width: 100%; padding: 10px 13px;
+      background: var(--bg3); border: 1.5px solid var(--border);
+      border-radius: 9px; color: var(--txt);
+      font-size: 15px; font-family: var(--sans);
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .tf-input:focus {
+      border-color: #F97316;
+      box-shadow: 0 0 0 3px rgba(249,115,22,.15);
+    }
+    .tf-input.error { border-color: #e03d42; }
+    .tf-input.error:focus { box-shadow: 0 0 0 3px rgba(224,61,66,.15); }
+
+    .tf-error-msg {
+      font-size: 12px; color: #e03d42; display: none;
+    }
+    .tf-field.has-error .tf-error-msg { display: block; }
+    .tf-field.has-error .tf-input     { border-color: #e03d42; }
+
+    /* ── Submit ── */
+    .tf-submit {
+      width: 100%; padding: 13px;
+      background: #F97316; border: none; border-radius: 10px;
+      font-family: var(--sans); font-size: 16px; font-weight: 700;
+      color: #fff; cursor: pointer;
+      transition: background .15s, transform .12s;
+      margin-top: 4px;
+      box-shadow: 0 3px 14px rgba(249,115,22,.35);
+    }
+    .tf-submit:hover   { background: #E25A0B; transform: translateY(-1px); }
+    .tf-submit:active  { transform: translateY(0); }
+    .tf-submit:disabled { opacity: .6; cursor: default; transform: none; }
+
+    /* ── Rodapé ── */
+    .tf-footer {
+      margin-top: 20px; padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--txt3);
+      display: flex; align-items: center; gap: 6px; justify-content: center;
+    }
+
+    @media (max-width: 520px) {
+      body        { padding: 24px 12px 40px; }
+      .tf-card    { padding: 24px 18px; }
+      .tf-title   { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tf-logo">
+    <svg width="32" height="32" viewBox="0 0 120 120" fill="none">
+      <path d="M60 14 C 70 14, 78 18, 86 26 L 102 42 C 106 46, 108 52, 108 58 L 108 92 C 108 100, 102 106, 94 106 L 26 106 C 18 106, 12 100, 12 92 L 12 58 C 12 52, 14 46, 18 42 L 34 26 C 42 18, 50 14, 60 14 Z" fill="#F97316"/>
+      <rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/>
+      <rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/>
+      <rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/>
+    </svg>
+    <span class="tf-logo-text">Rent<span>Flow</span></span>
+  </div>
+
+  <div class="tf-card">
+
+    <!-- Estado: carregando -->
+    <div class="tf-state active" id="stateLoading">
+      <div class="tf-spinner"></div>
+      <span class="tf-state-desc">Verificando link...</span>
+    </div>
+
+    <!-- Estado: erro (link inválido/expirado/usado) -->
+    <div class="tf-state" id="stateError">
+      <div class="tf-state-icon">⚠️</div>
+      <div class="tf-state-title">Link inválido</div>
+      <div class="tf-state-desc" id="errorMsg">Este link não é válido.</div>
+    </div>
+
+    <!-- Estado: formulário -->
+    <div class="tf-state" id="stateForm">
+      <div class="tf-header" style="width:100%">
+        <div class="tf-prop-badge">🏠 <span id="propName">Imóvel</span></div>
+        <div class="tf-title">Cadastro de Inquilino</div>
+        <div class="tf-subtitle">Preencha seus dados para concluir o cadastro no imóvel.</div>
+      </div>
+
+      <form class="tf-form" id="tenantForm" onsubmit="submitForm(event)" style="width:100%">
+
+        <div class="tf-field" id="fieldName">
+          <label class="tf-label">Nome completo <span class="req">*</span></label>
+          <input class="tf-input" id="inputName" type="text" placeholder="Seu nome completo" autocomplete="name" />
+          <span class="tf-error-msg" id="errName">Informe seu nome completo.</span>
+        </div>
+
+        <div class="tf-field" id="fieldCpf">
+          <label class="tf-label">CPF <span class="req">*</span></label>
+          <input class="tf-input" id="inputCpf" type="text" placeholder="000.000.000-00"
+                 inputmode="numeric" maxlength="14" />
+          <span class="tf-error-msg" id="errCpf">CPF inválido.</span>
+        </div>
+
+        <div class="tf-field" id="fieldPhone">
+          <label class="tf-label">Telefone / WhatsApp <span class="req">*</span></label>
+          <input class="tf-input" id="inputPhone" type="text" placeholder="(00) 00000-0000"
+                 inputmode="tel" maxlength="15" autocomplete="tel" />
+          <span class="tf-error-msg" id="errPhone">Informe um telefone válido.</span>
+        </div>
+
+        <div class="tf-field" id="fieldEmail">
+          <label class="tf-label">E-mail</label>
+          <input class="tf-input" id="inputEmail" type="email" placeholder="seu@email.com"
+                 autocomplete="email" />
+          <span class="tf-error-msg" id="errEmail">E-mail inválido.</span>
+        </div>
+
+        <div class="tf-field" id="fieldStart">
+          <label class="tf-label">Data de início do contrato <span class="req">*</span></label>
+          <input class="tf-input" id="inputStart" type="date" />
+          <span class="tf-error-msg" id="errStart">Selecione a data de início.</span>
+        </div>
+
+        <button type="submit" class="tf-submit" id="btnSubmit">Enviar Cadastro</button>
+      </form>
+    </div>
+
+    <!-- Estado: sucesso -->
+    <div class="tf-state" id="stateSuccess">
+      <div class="tf-state-icon">✅</div>
+      <div class="tf-state-title">Cadastro enviado!</div>
+      <div class="tf-state-desc">Seus dados foram enviados com sucesso ao proprietário. Você pode fechar esta página.</div>
+    </div>
+
+    <div class="tf-footer">
+      <svg width="14" height="14" viewBox="0 0 120 120" fill="none">
+        <path d="M60 14 C 70 14,78 18,86 26 L 102 42 C 106 46,108 52,108 58 L 108 92 C 108 100,102 106,94 106 L 26 106 C 18 106,12 100,12 92 L 12 58 C 12 52,14 46,18 42 L 34 26 C 42 18,50 14,60 14 Z" fill="#F97316"/>
+      </svg>
+      Protegido pelo RentFlow
+    </div>
+  </div>
+
+<script>
+'use strict';
+
+const token = new URLSearchParams(window.location.search).get('token');
+
+function showState(id) {
+  ['stateLoading','stateError','stateForm','stateSuccess'].forEach(s => {
+    document.getElementById(s).classList.toggle('active', s === id);
+  });
+}
+
+function setFieldError(fieldId, errId, msg, hasError) {
+  document.getElementById(fieldId).classList.toggle('has-error', hasError);
+  if (msg) document.getElementById(errId).textContent = msg;
+}
+
+// ── Máscaras ──────────────────────────────────────────────────────────────────
+document.getElementById('inputCpf').addEventListener('input', function () {
+  let v = this.value.replace(/\D/g, '').slice(0, 11);
+  v = v.replace(/(\d{3})(\d)/, '$1.$2')
+       .replace(/(\d{3})(\d)/, '$1.$2')
+       .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  this.value = v;
+});
+
+document.getElementById('inputPhone').addEventListener('input', function () {
+  let v = this.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length <= 10) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  else                v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+  this.value = v.replace(/-$/, '');
+});
+
+// ── Validação CPF ─────────────────────────────────────────────────────────────
+function validCpf(raw) {
+  const c = raw.replace(/\D/g, '');
+  if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+  let s = 0;
+  for (let i = 0; i < 9; i++) s += +c[i] * (10 - i);
+  let r = (s * 10) % 11; if (r >= 10) r = 0;
+  if (r !== +c[9]) return false;
+  s = 0;
+  for (let i = 0; i < 10; i++) s += +c[i] * (11 - i);
+  r = (s * 10) % 11; if (r >= 10) r = 0;
+  return r === +c[10];
+}
+
+// ── Validar token ao carregar ─────────────────────────────────────────────────
+async function validateToken() {
+  if (!token) {
+    document.getElementById('errorMsg').textContent = 'Link inválido ou incompleto.';
+    showState('stateError');
+    return;
+  }
+
+  try {
+    const { data, error } = await db.rpc('validate_tenant_link', { p_token: token });
+    if (error) throw error;
+
+    if (!data.ok) {
+      document.getElementById('errorMsg').textContent = data.error || 'Link inválido.';
+      showState('stateError');
+      return;
+    }
+
+    document.getElementById('propName').textContent = data.property_name || 'Imóvel';
+    if (data.checkin) {
+      const inp = document.getElementById('inputStart');
+      inp.value    = data.checkin;
+      inp.readOnly = true;
+      inp.style.cssText += ';background:var(--bg3);color:var(--txt2);cursor:default;';
+    }
+    showState('stateForm');
+  } catch (err) {
+    document.getElementById('errorMsg').textContent = 'Erro ao verificar o link. Tente novamente.';
+    showState('stateError');
+  }
+}
+
+// ── Enviar formulário ─────────────────────────────────────────────────────────
+async function submitForm(e) {
+  e.preventDefault();
+
+  const name  = document.getElementById('inputName').value.trim();
+  const cpf   = document.getElementById('inputCpf').value.trim();
+  const phone = document.getElementById('inputPhone').value.trim();
+  const email = document.getElementById('inputEmail').value.trim();
+  const start = document.getElementById('inputStart').value;
+
+  let valid = true;
+
+  setFieldError('fieldName',  'errName',  'Informe seu nome completo.',    !name);
+  if (!name) valid = false;
+
+  const cpfOk = validCpf(cpf);
+  setFieldError('fieldCpf', 'errCpf', 'CPF inválido.', !cpfOk);
+  if (!cpfOk) valid = false;
+
+  const phoneDigits = phone.replace(/\D/g, '');
+  const phoneOk = phoneDigits.length >= 10;
+  setFieldError('fieldPhone', 'errPhone', 'Informe um telefone válido.', !phoneOk);
+  if (!phoneOk) valid = false;
+
+  if (email) {
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setFieldError('fieldEmail', 'errEmail', 'E-mail inválido.', !emailOk);
+    if (!emailOk) valid = false;
+  } else {
+    setFieldError('fieldEmail', 'errEmail', '', false);
+  }
+
+  setFieldError('fieldStart', 'errStart', 'Selecione a data de início.', !start);
+  if (!start) valid = false;
+
+  if (!valid) return;
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  try {
+    const { data, error } = await db.rpc('submit_tenant_registration', {
+      p_token:         token,
+      p_name:          name,
+      p_cpf:           cpf,
+      p_phone:         phone,
+      p_email:         email || null,
+      p_contract_start: start,
+    });
+
+    if (error) throw error;
+
+    if (data.error) {
+      document.getElementById('errorMsg').textContent = data.error;
+      showState('stateError');
+      return;
+    }
+
+    showState('stateSuccess');
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Enviar Cadastro';
+    alert('Erro ao enviar: ' + (err.message || 'Tente novamente.'));
+  }
+}
+
+validateToken();
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+/* ============================================================
+   profile.css — Página de Perfil do Usuário — RentFlow
+   ============================================================ */
+
+/* ── LOADING ── */
+#loadingOverlay {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px; z-index: 9999;
+}
+#loadingOverlay span {
+  font-family: var(--sans); font-size: 13px; color: var(--txt2);
+}
+
+/* ── BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--txt);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.prf-header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 14px;
+  height: 56px;
+}
+.prf-back {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid var(--border2);
+  border-radius: 8px; padding: 6px 13px;
+  font-family: var(--sans); font-size: 14px; color: var(--txt2);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.prf-back:hover { background: var(--bg3); color: var(--txt); }
+.prf-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--sans); font-weight: 800; font-size: 17px;
+  letter-spacing: -.03em; color: var(--txt);
+}
+.prf-header-title {
+  margin-left: auto;
+  font-size: 14px; font-weight: 600; color: var(--txt2);
+}
+
+/* ── MAIN ── */
+.prf-main {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+  display: flex; flex-direction: column; gap: 24px;
+}
+
+/* ── HERO ── */
+.prf-hero {
+  display: flex; align-items: center; gap: 20px;
+  padding: 24px 28px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.prf-avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: #fff;
+  flex-shrink: 0; letter-spacing: -.02em;
+  font-family: var(--sans);
+}
+.prf-hero-name {
+  font-size: 20px; font-weight: 700; color: var(--txt);
+  line-height: 1.2;
+}
+.prf-hero-email {
+  font-size: 14px; color: var(--txt3); margin-top: 4px;
+}
+
+/* ── CARDS ── */
+.prf-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.prf-card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+.prf-card-icon { font-size: 18px; }
+.prf-card-title {
+  font-size: 15px; font-weight: 700; color: var(--txt);
+}
+
+/* ── FORMULÁRIO ── */
+.prf-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 24px;
+}
+.prf-field { display: flex; flex-direction: column; gap: 6px; }
+.prf-field-full { grid-column: 1 / -1; }
+.prf-label {
+  font-size: 12px; font-weight: 600; color: var(--txt2);
+  display: flex; align-items: center; gap: 8px;
+}
+.prf-readonly-badge {
+  font-size: 10px; font-weight: 500; color: var(--txt3);
+  background: var(--bg3); border: 1px solid var(--border);
+  padding: 1px 7px; border-radius: 99px; letter-spacing: .02em;
+}
+.prf-input {
+  width: 100%; padding: 10px 14px;
+  background: var(--bg3); border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  font-family: var(--sans); font-size: 14px; color: var(--txt);
+  outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.prf-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(249,115,22,.15);
+}
+.prf-input-readonly {
+  color: var(--txt3); cursor: default;
+  background: var(--bg);
+}
+.prf-input-readonly:focus {
+  border-color: var(--border2);
+  box-shadow: none;
+}
+
+/* ── PASSWORD FIELD ── */
+.prf-input-wrap {
+  position: relative;
+}
+.prf-input-wrap .prf-input { padding-right: 44px; }
+.prf-eye {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  font-size: 16px; opacity: .5; padding: 4px;
+  transition: opacity .15s; line-height: 1;
+}
+.prf-eye:hover { opacity: 1; }
+
+/* ── FOOTER / BOTÃO ── */
+.prf-card-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end;
+}
+.prf-btn-save {
+  padding: 10px 24px;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 8px;
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: opacity .15s;
+}
+.prf-btn-save:hover   { opacity: .87; }
+.prf-btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── TOAST ── */
+.prf-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--txt); color: var(--bg2);
+  font-size: 14px; font-weight: 500;
+  padding: 11px 22px; border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.18); z-index: 9000;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+  white-space: nowrap;
+}
+.prf-toast.show { opacity: 1; }
+.prf-toast.prf-toast-error { background: var(--danger, #ef4444); }
+
+/* ── RESPONSIVO ── */
+@media (max-width: 520px) {
+  .prf-header  { padding: 0 12px; gap: 10px; }
+  .prf-main    { padding: 20px 12px 40px; }
+  .prf-hero    { padding: 18px; gap: 14px; }
+  .prf-avatar  { width: 52px; height: 52px; font-size: 20px; }
+  .prf-hero-name { font-size: 17px; }
+  .prf-form-grid { grid-template-columns: 1fr; padding: 16px; }
+  .prf-card-footer { padding: 14px 16px; }
+  .prf-card-header { padding: 14px 16px; }
+}

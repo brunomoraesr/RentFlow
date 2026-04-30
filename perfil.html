@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — RentFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="variables.css" />
+  <link rel="stylesheet" href="perfil.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="services/supabaseClient.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+
+  <!-- ── LOADING ── -->
+  <div id="loadingOverlay">
+    <svg class="breathe" width="48" height="48" viewBox="0 0 120 120" fill="none"><path d="M60 14 C 70 14, 78 18, 86 26 L 102 42 C 106 46, 108 52, 108 58 L 108 92 C 108 100, 102 106, 94 106 L 26 106 C 18 106, 12 100, 12 92 L 12 58 C 12 52, 14 46, 18 42 L 34 26 C 42 18, 50 14, 60 14 Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/></svg>
+    <span style="font-family:var(--sans);font-weight:800;font-size:20px;letter-spacing:-.03em;color:var(--txt)">Rent<span style="color:#F97316">Flow</span></span>
+    <span>Carregando dashboard...</span>
+  </div>
+
+  <!-- ── HEADER ── -->
+  <header class="dash-header">
+    <button class="btn-back" onclick="window.location.href='index.html'">← Voltar</button>
+    <div class="header-logo" style="display:flex;align-items:center;gap:7px;">
+      <svg width="28" height="28" viewBox="0 0 120 120" fill="none"><path d="M60 14 C 70 14, 78 18, 86 26 L 102 42 C 106 46, 108 52, 108 58 L 108 92 C 108 100, 102 106, 94 106 L 26 106 C 18 106, 12 100, 12 92 L 12 58 C 12 52, 14 46, 18 42 L 34 26 C 42 18, 50 14, 60 14 Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/></svg>
+      <span style="font-family:var(--sans);font-weight:800;font-size:17px;letter-spacing:-.03em;color:var(--txt)">Rent<span style="color:#F97316">Flow</span></span>
+    </div>
+    <span class="dash-title">Dashboard Analítico</span>
+    <!-- Toggle sidebar de filtros — visível em tablet e mobile -->
+    <button class="btn-dash-toggle" id="btnDashToggle" onclick="toggleDashSidebar()" title="Filtros">☰</button>
+  </header>
+
+  <!-- ── BODY: sidebar + conteúdo ── -->
+  <div class="dash-layout">
+
+    <!-- ── SIDEBAR DE FILTROS ── -->
+    <aside class="dash-sidebar">
+
+      <!-- Cabeçalho visível apenas quando aberto como drawer -->
+      <div class="sb-overlay-header">
+        <span class="sb-overlay-title">Filtros</span>
+        <button class="sb-overlay-close" onclick="closeDashSidebar()">✕</button>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-heading">Filtros</div>
+
+        <label class="sb-label">Ano</label>
+        <select id="selYear" class="sb-select" onchange="onFilterChange()"></select>
+
+        <label class="sb-label">Período</label>
+        <select id="selMonth" class="sb-select" onchange="onFilterChange()">
+          <option value="-1">Ano todo</option>
+          <option value="0">Janeiro</option>
+          <option value="1">Fevereiro</option>
+          <option value="2">Março</option>
+          <option value="3">Abril</option>
+          <option value="4">Maio</option>
+          <option value="5">Junho</option>
+          <option value="6">Julho</option>
+          <option value="7">Agosto</option>
+          <option value="8">Setembro</option>
+          <option value="9">Outubro</option>
+          <option value="10">Novembro</option>
+          <option value="11">Dezembro</option>
+        </select>
+
+        <label class="sb-label">Imóvel</label>
+        <select id="selProp" class="sb-select" onchange="onFilterChange()">
+          <option value="">Todos os imóveis</option>
+        </select>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-heading">Status</div>
+        <div class="live-badge">
+          <div class="live-dot" id="liveDot"></div>
+          <span id="liveText">Conectando...</span>
+        </div>
+      </div>
+
+
+    </aside>
+
+    <!-- ── CONTEÚDO PRINCIPAL ── -->
+    <main class="dash-content">
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--accent-bar:#F97316">
+          <div class="kpi-lbl">Reservas Ativas</div>
+          <div class="kpi-val" id="kpiReservas">—</div>
+          <div class="kpi-sub" id="kpiReservasSub">—</div>
+        </div>
+        <div class="kpi-card" style="--accent-bar:#4a90d9">
+          <div class="kpi-lbl">Taxa de Ocupação</div>
+          <div class="kpi-val" id="kpiOcupacao">—</div>
+          <div class="kpi-sub" id="kpiOcupacaoSub">—</div>
+        </div>
+        <div class="kpi-card" style="--accent-bar:#34c97e">
+          <div class="kpi-lbl" id="kpiReceitaLbl">Receita do Período</div>
+          <div class="kpi-val" id="kpiReceita">R$ 0</div>
+          <div class="kpi-sub" id="kpiReceitaSub">—</div>
+        </div>
+        <div class="kpi-card" style="--accent-bar:#f5a623">
+          <div class="kpi-lbl" id="kpiLucroLbl">Lucro do Período</div>
+          <div class="kpi-val" id="kpiLucro">R$ 0</div>
+          <div class="kpi-sub" id="kpiLucroSub">receita − limpeza</div>
+        </div>
+      </div>
+
+      <!-- Linha 1: Evolução Financeira + Status dos Imóveis -->
+      <div class="charts-row cr-2-1">
+        <div class="chart-card">
+          <div class="chart-title">Evolução Financeira</div>
+          <div class="chart-desc">Receita mês a mês · mês selecionado destacado</div>
+          <div id="lineChartEl"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Status dos Imóveis</div>
+          <div class="chart-desc">Dias ocupados vs disponíveis no período</div>
+          <div id="donutChartEl"></div>
+        </div>
+      </div>
+
+      <!-- Linha 2: Hóspedes + Cancelamento + Tempo Vago -->
+      <div class="charts-row cr-3">
+        <div class="chart-card">
+          <div class="chart-title">Hóspedes por Reserva</div>
+          <div class="chart-desc">Frequência de hóspedes por reserva ativa</div>
+          <div id="guestsChartEl"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Taxa de Cancelamento</div>
+          <div class="chart-desc" id="cancelChartDesc">—</div>
+          <div id="cancelChartEl"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Tempo Vago por Imóvel</div>
+          <div class="chart-desc">Dias disponíveis (sem reserva ativa) no período</div>
+          <div id="vacantChartEl"></div>
+        </div>
+      </div>
+
+      <!-- Inquilinos Cadastrados -->
+      <div class="chart-card tenants-section">
+        <div class="tenants-header">
+          <div>
+            <div class="chart-title">Inquilinos Cadastrados</div>
+            <div class="chart-desc" id="tenantsDesc">Carregando...</div>
+          </div>
+        </div>
+
+        <div class="tenants-filters">
+          <div class="tenants-filter-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="filterTenantSearch" class="tenants-filter-input with-icon" placeholder="Buscar por nome ou telefone…" oninput="renderTenantsTable()" />
+          </div>
+          <input type="date" id="filterTenantDate" class="tenants-filter-input date-input" title="Filtrar por data de início do contrato" onchange="renderTenantsTable()" />
+          <button class="tenants-filter-clear" onclick="clearTenantFilters()">Limpar</button>
+        </div>
+
+        <div id="tenantsTableWrap">
+          <table class="tenants-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Imóvel</th>
+                <th>Início do Contrato</th>
+                <th>Cadastrado em</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tenantsTableBody">
+              <tr><td colspan="6" class="tenants-empty">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── BACKDROP SIDEBAR ── -->
+  <div id="dashSidebarBackdrop" onclick="closeDashSidebar()"></div>
+
+  <!-- ── MODAL DETALHE INQUILINO ── -->
+  <div id="modalTenantDetail" class="tenant-modal-overlay" onclick="closeTenantModal(event)">
+    <div class="tenant-modal-box" onclick="event.stopPropagation()">
+      <div class="tenant-modal-header">
+        <span class="tenant-modal-title">Dados do Inquilino</span>
+        <button class="tenant-modal-close" onclick="closeTenantModal()">✕</button>
+      </div>
+      <div class="tenant-modal-body" id="tenantDetailBody"></div>
+    </div>
+  </div>
+
+  <script src="perfil.js"></script>
+</body>
+</html>

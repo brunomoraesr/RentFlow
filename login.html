@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>RentFlow — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="variables.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="services/supabaseClient.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { width: 100%; overflow-x: hidden; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      background: var(--bg);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    /* ════════════════════════════
+       BANNER — esquerda 2/3
+    ════════════════════════════ */
+    .login-banner {
+      flex: 2;
+      background: linear-gradient(140deg, #B33F05 0%, #E25A0B 40%, #F97316 75%, #FACC15 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-banner::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(249,115,22,.16) 0%, transparent 70%);
+      top: -200px; right: -120px;
+      pointer-events: none;
+    }
+
+    .login-banner::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(52,201,126,.11) 0%, transparent 70%);
+      bottom: -120px; left: 40px;
+      pointer-events: none;
+    }
+
+    .banner-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 56px;
+    }
+
+    .banner-logo-icon {
+      width: 52px; height: 52px;
+      background: var(--accent);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 24px rgba(249,115,22,.45);
+      flex-shrink: 0;
+    }
+
+    .banner-logo-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: rgba(255,255,255,.88);
+      letter-spacing: -.02em;
+    }
+
+    .banner-tag {
+      display: inline-block;
+      background: rgba(52,201,126,.18);
+      border: 1px solid rgba(52,201,126,.32);
+      color: #34c97e;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 20px;
+      padding: 6px 18px;
+      margin-bottom: 26px;
+      letter-spacing: .01em;
+    }
+
+    .banner-title {
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -.03em;
+      color: #fff;
+      margin-bottom: 24px;
+      max-width: 100%;
+    }
+
+    .banner-title .hl-green { color: #FACC15; }
+
+    .banner-sub {
+      font-size: 22px;
+      color: rgba(255,255,255,.58);
+      margin-bottom: 52px;
+      max-width: 100%;
+      line-height: 1.6;
+    }
+
+    /* ── FLOATING SCREENSHOTS ── */
+    .shot {
+      position: absolute;
+      border-radius: 14px; overflow: hidden;
+      background: #fff;
+      box-shadow: 0 16px 36px rgba(80,20,0,.28), 0 4px 10px rgba(80,20,0,.16), 0 0 0 1px rgba(255,255,255,.14);
+    }
+    .shot.s-cal  { width: 500px; left: -70px;  top: 52px;     transform: rotate(-7deg); }
+    .shot.s-dash { width: 540px; right: -105px; top: 75px;     transform: rotate(6deg);  }
+    .shot.s-ical { width: 270px; left: 65px;   bottom: 70px;  transform: rotate(5deg);  }
+    .shot.s-form { width: 250px; right: 50px;  bottom: 52px;  transform: rotate(-5deg); }
+
+    /* shared inner */
+    .sm-hdr { background:#FFF8EC; border-bottom:1px solid rgba(27,42,74,.07); padding:7px 12px; display:flex; align-items:center; gap:7px; }
+    .sm-hdr-wm { font-family:'Figtree',sans-serif; font-weight:800; font-size:12px; color:#1B2A4A; }
+    .sm-hdr-wm span { color:#F97316; }
+    .sm-prop { font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; color:#1B2A4A; }
+    .sm-prop-loc { font-size:10px; color:#8A9AB8; margin-left:3px; }
+
+    /* calendar mockup */
+    .sm-toolbar { padding:7px 12px; border-bottom:1px solid rgba(0,0,0,.05); display:flex; align-items:center; gap:6px; }
+    .sm-month   { font-family:'Figtree',sans-serif; font-size:14px; font-weight:700; color:#1B2A4A; }
+    .sm-month span { color:#8A9AB8; font-weight:300; }
+    .sm-btn-new { margin-left:auto; background:#F97316; color:#fff; border-radius:6px; padding:4px 10px; font-family:'Figtree',sans-serif; font-size:10px; font-weight:600; white-space:nowrap; }
+    .sm-cal { padding:8px 10px; }
+    .sm-cal-head { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:3px; }
+    .sm-cal-head span { font-family:'Figtree',sans-serif; font-size:9px; font-weight:700; color:#8A9AB8; text-align:center; text-transform:uppercase; letter-spacing:.04em; }
+    .sm-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .sm-day { min-height:46px; border-radius:6px; padding:4px 5px; font-family:'Figtree',sans-serif; font-size:10px; color:#1B2A4A; background:#fff; border:1px solid transparent; }
+    .sm-day.other { color:#c5c5c5; background:#faf9f7; }
+    .sm-day.today .sm-dn { background:#F97316; color:#fff; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+    .sm-dn { font-weight:600; font-size:10px; margin-bottom:2px; }
+    .sm-pill { border-radius:3px; padding:1px 4px; font-size:9px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px; }
+    .sm-pill.airbnb  { background:rgba(255,90,95,.12);  color:#c0373b; }
+    .sm-pill.whatsapp{ background:rgba(37,211,102,.12); color:#0e8a44; }
+    .sm-pill.manual  { background:rgba(249,115,22,.12); color:#b34500; }
+
+    /* dashboard mockup */
+    .sm-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; padding:8px 10px; border-bottom:1px solid rgba(0,0,0,.05); }
+    .sm-kpi  { background:#FFF8EC; border-radius:6px; padding:6px 8px; }
+    .sm-kpi-lbl { font-family:'Figtree',sans-serif; font-size:7px; font-weight:700; color:#8A9AB8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+    .sm-kpi-val { font-family:'Figtree',sans-serif; font-size:13px; font-weight:700; color:#1B2A4A; }
+    .sm-charts { display:grid; grid-template-columns:1fr auto; gap:8px; padding:8px 10px; }
+    .sm-line-area { flex:1; }
+    .sm-line-title { font-family:'Figtree',sans-serif; font-size:9px; font-weight:700; color:#1B2A4A; margin-bottom:4px; }
+    .sm-line-svg { width:100%; }
+    .sm-donut-area { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .sm-donut-title { font-family:'Figtree',sans-serif; font-size:8px; font-weight:700; color:#1B2A4A; text-align:center; }
+
+    /* iCal mockup */
+    .sm-modal { padding:14px 16px; font-family:'Figtree',sans-serif; }
+    .sm-modal-title { font-size:13px; font-weight:700; color:#1B2A4A; margin-bottom:10px; }
+    .sm-modal-sec-title { font-size:10px; font-weight:700; color:#1B2A4A; margin-bottom:6px; display:flex; align-items:center; gap:4px; }
+    .sm-input-row { display:flex; gap:5px; margin-bottom:7px; }
+    .sm-input { flex:1; border:1px solid rgba(27,42,74,.12); border-radius:6px; padding:6px 8px; font-family:'Figtree',sans-serif; font-size:10px; color:#8A9AB8; background:#FFF8EC; }
+    .sm-btn-save { background:#F97316; color:#fff; border-radius:6px; padding:6px 10px; font-family:'Figtree',sans-serif; font-size:10px; font-weight:600; flex-shrink:0; }
+    .sm-btn-sync { width:100%; background:#F97316; color:#fff; border-radius:8px; padding:9px; font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; text-align:center; margin:8px 0; }
+
+    /* form mockup */
+    .sm-form { padding:14px 16px; font-family:'Figtree',sans-serif; }
+    .sm-form-title { font-size:13px; font-weight:700; color:#1B2A4A; margin-bottom:10px; }
+    .sm-sources { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:10px; }
+    .sm-src { border:1px solid rgba(27,42,74,.12); border-radius:7px; padding:6px 2px; text-align:center; font-size:9px; font-weight:500; color:#3A4A6A; }
+    .sm-src.active { border-color:#F97316; background:rgba(249,115,22,.08); color:#F97316; }
+    .sm-src-ico { font-size:14px; display:block; margin-bottom:2px; }
+    .sm-form-row { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:7px; }
+    .sm-field { display:flex; flex-direction:column; gap:3px; }
+    .sm-field label { font-size:8px; font-weight:600; color:#3A4A6A; }
+    .sm-field input { border:1px solid rgba(27,42,74,.12); border-radius:6px; padding:5px 7px; font-family:'Figtree',sans-serif; font-size:10px; color:#1B2A4A; background:#FFF8EC; }
+    .sm-btn-confirm { width:100%; background:#F97316; color:#fff; border-radius:8px; padding:9px; font-family:'Figtree',sans-serif; font-size:11px; font-weight:600; text-align:center; margin-top:8px; }
+
+    /* ── CENTER GLASS CARD ── */
+    .center-card {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      z-index: 5;
+      width: 440px; padding: 40px 36px;
+      border-radius: 24px;
+      background: rgba(15,34,71,.60);
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 40px 80px rgba(80,20,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+      text-align: center;
+    }
+    .cpill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 14px; border-radius: 999px;
+      background: rgba(250,204,21,.18); border: 1px solid rgba(250,204,21,.5);
+      color: #FDE68A; font-size: 12px; font-weight: 600; letter-spacing: .02em;
+      margin-bottom: 22px;
+    }
+    .cpill-dot { width:6px; height:6px; border-radius:50%; background:#FACC15; box-shadow:0 0 0 4px rgba(250,204,21,.25); flex-shrink:0; }
+    .cbrand { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px; }
+    .cwm { font-family:'Figtree',sans-serif; font-weight:800; font-size:48px; letter-spacing:-.03em; color:#fff; line-height:1; }
+    .cwm span { color:#F97316; }
+    .ch1 { font-size:20px; font-weight:600; color:rgba(255,255,255,.92); line-height:1.4; margin-bottom:10px; letter-spacing:-.01em; }
+    .ch1 em { font-style:normal; color:#FACC15; font-weight:700; }
+    .cp  { font-size:14px; font-weight:500; color:rgba(255,255,255,.65); margin-bottom:26px; line-height:1.5; }
+    .cstats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(255,255,255,.1); padding-top:20px; }
+    .cstat .cv { font-family:'Figtree',sans-serif; font-weight:800; font-size:20px; color:#fff; letter-spacing:-.02em; }
+    .cstat .cv.orange { color:#F97316; }
+    .cstat .cv.yellow { color:#FACC15; }
+    .cstat .cv.green  { color:#34D399; }
+    .cstat .cl { font-size:10px; color:rgba(255,255,255,.5); font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-top:3px; }
+
+    /* ════════════════════════════
+       FORMULÁRIO — direita 1/3
+    ════════════════════════════ */
+    .login-side {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 52px 40px;
+      background: var(--bg);
+      border-right: 1px solid var(--border2);
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      justify-content: center;
+      margin-bottom: 32px;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -.02em;
+    }
+
+    .login-logo-icon {
+      width: 42px; height: 42px;
+      background: var(--accent);
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 21px;
+      flex-shrink: 0;
+    }
+
+    .login-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .login-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--txt3);
+      cursor: pointer;
+      transition: all .15s;
+      margin-bottom: -1px;
+      touch-action: manipulation;
+    }
+
+    .login-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .login-tab:hover:not(.active) { color: var(--txt2); }
+
+    /* Títulos: +10px */
+    .login-title {
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -.03em;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    /* Subtítulos: +10px */
+    .login-sub {
+      font-size: 18px;
+      color: var(--txt2);
+      margin-bottom: 26px;
+      line-height: 1.5;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    /* Labels: +10px */
+    .field label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--txt2);
+    }
+
+    .field input {
+      padding: 13px 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--txt);
+      font-size: 16px;
+      font-family: var(--sans);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      width: 100%;
+      /* 16px mínimo evita zoom automático no iOS */
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(249,115,22,.15);
+    }
+
+    .field input::placeholder { color: var(--txt3); }
+
+    .error-msg {
+      font-size: 14px;
+      color: var(--danger);
+      background: rgba(255,71,87,.08);
+      border: 1px solid rgba(255,71,87,.2);
+      border-radius: 8px;
+      padding: 10px 13px;
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .error-msg.visible { display: block; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      border: none;
+      border-radius: 11px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: all .15s;
+      box-shadow: 0 2px 14px rgba(249,115,22,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 52px;
+      touch-action: manipulation;
+    }
+
+    .btn-submit:hover   { background: var(--accent2); transform: translateY(-1px); }
+    .btn-submit:active  { transform: translateY(0); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-label { opacity: .7; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 22px 0;
+      font-size: 13px;
+      color: var(--txt3);
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .login-footer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--txt3);
+      margin-top: 24px;
+    }
+
+    .capslock-warn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #b45309;
+      background: rgba(245,158,11,.1);
+      border: 1px solid rgba(245,158,11,.25);
+      border-radius: 7px;
+      padding: 7px 11px;
+      margin-top: 4px;
+    }
+
+    .capslock-warn.visible { display: flex; }
+
+    .forgot-link-wrap {
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 18px;
+    }
+
+    .forgot-link {
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 4px 0;
+      text-decoration: none;
+      transition: opacity .15s;
+      touch-action: manipulation;
+    }
+
+    .forgot-link:hover { opacity: .75; }
+
+    .back-link-wrap {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .success-msg {
+      font-size: 14px;
+      color: #0e8a44;
+      background: rgba(52,201,126,.08);
+      border: 1px solid rgba(52,201,126,.3);
+      border-radius: 8px;
+      padding: 10px 13px;
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .success-msg.visible { display: block; }
+
+    /* ════════════════════════════
+       RESPONSIVO
+    ════════════════════════════ */
+
+    /* Tablet deitado / laptop pequeno */
+    @media (max-width: 1100px) {
+      .login-banner { padding: 52px 52px; }
+      .banner-title { font-size: 50px; }
+      .banner-sub   { font-size: 19px; }
+    }
+
+    /* Tablet em pé / celular grande — empilha vertical */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+
+      .login-banner {
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 36px 24px 40px;
+        overflow: visible;
+        order: 1;
+      }
+
+      /* Screenshots decorativos: escondem no mobile */
+      .shot { display: none; }
+
+      /* Card central: sai do posicionamento absoluto e entra no fluxo */
+      .center-card {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        max-width: 460px;
+        padding: 28px 24px;
+      }
+
+      .cwm  { font-size: 38px; }
+      .ch1  { font-size: 18px; }
+      .cp   { font-size: 13px; margin-bottom: 20px; }
+
+      .login-side {
+        flex: none;
+        border-right: none;
+        border-top: 1px solid var(--border2);
+        padding: 40px 24px;
+        order: 2;
+      }
+
+      .login-wrap { max-width: 460px; }
+    }
+
+    /* Celular médio */
+    @media (max-width: 600px) {
+      .login-banner { padding: 28px 16px 32px; }
+      .center-card  { padding: 22px 18px; }
+      .cwm  { font-size: 32px; }
+      .ch1  { font-size: 16px; }
+      .cp   { font-size: 12px; margin-bottom: 16px; }
+      .cpill { font-size: 11px; padding: 5px 12px; margin-bottom: 16px; }
+      .cstat .cv { font-size: 17px; }
+      .cstat .cl { font-size: 9px; }
+
+      .login-side   { padding: 28px 16px; }
+      .login-card   { padding: 24px 20px; }
+      .login-logo   { font-size: 18px; margin-bottom: 24px; }
+      .login-title  { font-size: 28px; }
+      .login-sub    { font-size: 16px; margin-bottom: 22px; }
+      .field label  { font-size: 14px; }
+      .login-tab    { font-size: 15px; }
+      .field input  { padding: 12px 14px; }
+      .btn-submit   { padding: 13px; font-size: 16px; }
+    }
+
+    /* Celular pequeno */
+    @media (max-width: 400px) {
+      .login-banner { padding: 22px 12px 26px; }
+      .center-card  { padding: 18px 14px; }
+      .cwm  { font-size: 26px; }
+      .ch1  { font-size: 14px; }
+      .cp   { font-size: 11px; margin-bottom: 14px; }
+      .cstats { padding-top: 14px; }
+      .cstat .cv { font-size: 15px; }
+
+      .login-side    { padding: 20px 12px; }
+      .login-card    { padding: 20px 16px; }
+      .login-title   { font-size: 24px; }
+      .login-sub     { font-size: 15px; }
+      .field label   { font-size: 13px; }
+      .login-wrap    { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- FORMULÁRIO (1/3 esquerda) -->
+<div class="login-side">
+  <div class="login-wrap">
+    <div class="login-logo" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <svg width="56" height="56" viewBox="0 0 120 120" fill="none"><path d="M60 14 C 70 14, 78 18, 86 26 L 102 42 C 106 46, 108 52, 108 58 L 108 92 C 108 100, 102 106, 94 106 L 26 106 C 18 106, 12 100, 12 92 L 12 58 C 12 52, 14 46, 18 42 L 34 26 C 42 18, 50 14, 60 14 Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/></svg>
+      <span style="font-family:'Figtree',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.03em;color:#1B2A4A">Rent<span style="color:#F97316">Flow</span></span>
+    </div>
+
+    <div class="login-card">
+      <div class="login-tabs" id="loginTabs">
+        <button class="login-tab active" id="tabLogin" onclick="switchTab('login')">Entrar</button>
+        <button class="login-tab" id="tabRegister" onclick="switchTab('register')">Cadastrar</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="panelLogin">
+        <div class="login-title">Bem-vindo</div>
+        <div class="login-sub">Acesse sua conta para continuar</div>
+
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email" maxlength="254" />
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" maxlength="128" onkeydown="if(event.key==='Enter') handleLogin()" />
+          <div class="capslock-warn" id="capsWarnLogin">⇪ CapsLock ativado</div>
+        </div>
+
+        <div class="forgot-link-wrap">
+          <button class="forgot-link" onclick="showPanel('forgot')">Esqueceu sua senha?</button>
+        </div>
+
+        <div class="error-msg" id="loginError"></div>
+
+        <button class="btn-submit" id="btnLogin" onclick="handleLogin()">
+          <div class="spinner"></div>
+          <span class="btn-label">Entrar</span>
+        </button>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="panelRegister" style="display:none">
+        <div class="login-title">Criar conta</div>
+        <div class="login-sub">Comece a gerenciar suas reservas</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Nome</label>
+            <input type="text" id="regFirstName" placeholder="Seu nome" autocomplete="given-name" />
+          </div>
+          <div class="field">
+            <label>Sobrenome</label>
+            <input type="text" id="regLastName" placeholder="Seu sobrenome" autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Celular</label>
+          <input type="tel" id="regPhone" placeholder="(11) 99999-9999" autocomplete="tel" maxlength="15" oninput="maskPhone(this)" />
+        </div>
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="regEmail" placeholder="seu@email.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+          <div class="capslock-warn" id="capsWarnReg">⇪ CapsLock ativado</div>
+        </div>
+        <div class="field">
+          <label>Confirmar senha</label>
+          <input type="password" id="regConfirm" placeholder="Repita a senha" autocomplete="new-password" onkeydown="if(event.key==='Enter') handleRegister()" />
+        </div>
+
+        <div class="error-msg" id="regError"></div>
+
+        <button class="btn-submit" id="btnRegister" onclick="handleRegister()">
+          <div class="spinner"></div>
+          <span class="btn-label">Criar conta</span>
+        </button>
+      </div>
+
+      <!-- FORGOT PASSWORD -->
+      <div id="panelForgot" style="display:none">
+        <div class="login-title">Redefinir senha</div>
+        <div class="login-sub">Enviaremos um link de redefinição para seu e-mail</div>
+
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="forgotEmail" placeholder="seu@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') handleForgotPassword()" />
+        </div>
+
+        <div class="error-msg" id="forgotError"></div>
+        <div class="success-msg" id="forgotSuccess"></div>
+
+        <button class="btn-submit" id="btnForgot" onclick="handleForgotPassword()">
+          <div class="spinner"></div>
+          <span class="btn-label">Enviar link</span>
+        </button>
+
+        <div class="back-link-wrap">
+          <button class="forgot-link" onclick="showPanel('login')">← Voltar ao login</button>
+        </div>
+      </div>
+
+      <!-- SET NEW PASSWORD (após clicar no link do e-mail) -->
+      <div id="panelReset" style="display:none">
+        <div class="login-title">Nova senha</div>
+        <div class="login-sub">Defina sua nova senha de acesso</div>
+
+        <div class="field">
+          <label>Nova senha</label>
+          <input type="password" id="resetPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+        </div>
+        <div class="field">
+          <label>Confirmar nova senha</label>
+          <input type="password" id="resetConfirm" placeholder="Repita a nova senha" autocomplete="new-password" onkeydown="if(event.key==='Enter') handleSetNewPassword()" />
+        </div>
+
+        <div class="error-msg" id="resetError"></div>
+        <div class="success-msg" id="resetSuccess"></div>
+
+        <button class="btn-submit" id="btnReset" onclick="handleSetNewPassword()">
+          <div class="spinner"></div>
+          <span class="btn-label">Salvar nova senha</span>
+        </button>
+      </div>
+
+      <div class="login-footer">Seus dados são privados e protegidos.</div>
+    </div>
+  </div>
+</div>
+
+<!-- BANNER (2/3 direita) -->
+<div class="login-banner">
+
+  <!-- Screenshot 1: Calendário (topo esquerda) -->
+  <div class="shot s-cal">
+    <div class="sm-hdr">
+      <svg width="14" height="14" viewBox="0 0 120 120" fill="none"><path d="M60 14 C70 14,78 18,86 26 L102 42 C106 46,108 52,108 58 L108 92 C108 100,102 106,94 106 L26 106 C18 106,12 100,12 92 L12 58 C12 52,14 46,18 42 L34 26 C42 18,50 14,60 14Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/></svg>
+      <span class="sm-hdr-wm">Rent<span>Flow</span></span>
+      <span style="margin-left:8px" class="sm-prop">Flat 605</span><span class="sm-prop-loc">— Brasil</span>
+    </div>
+    <div class="sm-toolbar">
+      <span style="font-size:13px;color:#8A9AB8">‹</span>
+      <span class="sm-month">Abril <span>2026</span></span>
+      <span style="font-size:13px;color:#8A9AB8">›</span>
+      <span style="margin-left:6px;border:1px solid rgba(0,0,0,.1);border-radius:5px;padding:3px 7px;font-family:Figtree,sans-serif;font-size:9px;color:#3A4A6A">Hoje</span>
+      <span class="sm-btn-new">+ Nova reserva</span>
+    </div>
+    <div class="sm-cal">
+      <div class="sm-cal-head"><span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span></div>
+      <div class="sm-cal-grid">
+        <div class="sm-day other"><div class="sm-dn">29</div></div><div class="sm-day other"><div class="sm-dn">30</div></div><div class="sm-day other"><div class="sm-dn">31</div></div>
+        <div class="sm-day"><div class="sm-dn">1</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">2</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">3</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">4</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">5</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">6</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">7</div><div class="sm-pill airbnb">Artur</div></div>
+        <div class="sm-day"><div class="sm-dn">8</div></div>
+        <div class="sm-day"><div class="sm-dn">9</div><div class="sm-pill whatsapp">Cecília</div></div>
+        <div class="sm-day"><div class="sm-dn">10</div><div class="sm-pill whatsapp">Cecília</div></div>
+        <div class="sm-day"><div class="sm-dn">11</div></div>
+        <div class="sm-day"><div class="sm-dn">12</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">13</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">14</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">15</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">16</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">17</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">18</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">19</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">20</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">21</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">22</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">23</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">24</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">25</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">26</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day today"><div class="sm-dn">27</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">28</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">29</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day"><div class="sm-dn">30</div><div class="sm-pill airbnb">Importado</div></div>
+        <div class="sm-day other"><div class="sm-dn">1</div></div><div class="sm-day other"><div class="sm-dn">2</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot 2: Dashboard (topo direita) -->
+  <div class="shot s-dash">
+    <div class="sm-hdr">
+      <svg width="14" height="14" viewBox="0 0 120 120" fill="none"><path d="M60 14 C70 14,78 18,86 26 L102 42 C106 46,108 52,108 58 L108 92 C108 100,102 106,94 106 L26 106 C18 106,12 100,12 92 L12 58 C12 52,14 46,18 42 L34 26 C42 18,50 14,60 14Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/></svg>
+      <span class="sm-hdr-wm">Rent<span>Flow</span></span>
+      <span style="margin-left:8px;font-family:Figtree,sans-serif;font-size:11px;font-weight:600;color:#1B2A4A">Dashboard Analítico</span>
+    </div>
+    <div class="sm-kpis">
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Reservas ativas</div><div class="sm-kpi-val">2</div></div>
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Ocupação</div><div class="sm-kpi-val">93%</div></div>
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Receita</div><div class="sm-kpi-val" style="color:#F97316">R$500</div></div>
+      <div class="sm-kpi"><div class="sm-kpi-lbl">Lucro</div><div class="sm-kpi-val" style="color:#34c97e">R$400</div></div>
+    </div>
+    <div class="sm-charts">
+      <div class="sm-line-area" style="flex:1">
+        <div class="sm-line-title">Evolução Financeira</div>
+        <svg class="sm-line-svg" height="70" viewBox="0 0 300 70">
+          <path d="M0,65 L40,60 L80,55 L120,35 L160,18 L200,58 L240,62 L280,63 L300,63" stroke="#F97316" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M0,65 L40,60 L80,55 L120,35 L160,18 L200,58 L240,62 L280,63 L300,63 L300,70 L0,70Z" fill="rgba(249,115,22,.08)"/>
+          <circle cx="160" cy="18" r="4" fill="#F97316"/>
+          <rect x="145" y="6" width="30" height="12" rx="3" fill="#F97316"/><text x="160" y="15" text-anchor="middle" font-family="Figtree" font-size="7" fill="white" font-weight="600">Abr</text>
+        </svg>
+      </div>
+      <div class="sm-donut-area" style="width:70px">
+        <div class="sm-donut-title">Status</div>
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="22" fill="none" stroke="#e8e8e4" stroke-width="8"/>
+          <circle cx="30" cy="30" r="22" fill="none" stroke="#F97316" stroke-width="8" stroke-dasharray="128 10" stroke-dashoffset="35" stroke-linecap="round"/>
+          <text x="30" y="34" text-anchor="middle" font-family="Figtree" font-size="9" fill="#1B2A4A" font-weight="700">93%</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screenshot 3: iCal modal (baixo esquerda) -->
+  <div class="shot s-ical">
+    <div class="sm-modal">
+      <div class="sm-modal-title">🔗 Sincronização iCal</div>
+      <div class="sm-modal-sec-title">🏠 Importar do Airbnb / Booking.com</div>
+      <div style="font-family:Figtree,sans-serif;font-size:9px;color:#8A9AB8;margin-bottom:8px;line-height:1.4">Cole as URLs iCal de cada plataforma para importar como bloqueios no seu calendário.</div>
+      <div style="font-family:Figtree,sans-serif;font-size:9px;font-weight:600;color:#1B2A4A;margin-bottom:4px">🏠 URL iCal do Airbnb</div>
+      <div class="sm-input-row">
+        <div class="sm-input">https://www.airbnb.com/calendar/ical/…</div>
+        <div class="sm-btn-save">Salvar</div>
+      </div>
+      <div style="font-family:Figtree,sans-serif;font-size:9px;font-weight:600;color:#1B2A4A;margin-bottom:4px">🌐 URL iCal do Booking.com</div>
+      <div class="sm-input-row">
+        <div class="sm-input" style="color:#c5c5c5">https://ical.booking.com/v1/export…</div>
+        <div class="sm-btn-save">Salvar</div>
+      </div>
+      <div class="sm-btn-sync">🔄 Sincronizar agora</div>
+    </div>
+  </div>
+
+  <!-- Screenshot 4: Nova Reserva form (baixo direita) -->
+  <div class="shot s-form">
+    <div class="sm-form">
+      <div class="sm-form-title">Nova Reserva</div>
+      <div class="sm-sources">
+        <div class="sm-src active"><span class="sm-src-ico">🏠</span>Airbnb</div>
+        <div class="sm-src"><span class="sm-src-ico">🌐</span>Booking</div>
+        <div class="sm-src"><span class="sm-src-ico">💬</span>WhatsApp</div>
+        <div class="sm-src"><span class="sm-src-ico">✏️</span>Manual</div>
+        <div class="sm-src"><span class="sm-src-ico">🔒</span>Bloqueio</div>
+      </div>
+      <div class="sm-form-row">
+        <div class="sm-field" style="grid-column:1/-1"><label>Hóspede *</label><input value="" placeholder="Nome do hóspede" /></div>
+      </div>
+      <div class="sm-form-row">
+        <div class="sm-field"><label>Check-in *</label><input value="16/04/2026" /></div>
+        <div class="sm-field"><label>Check-out *</label><input value="" placeholder="dd/mm/aaaa" /></div>
+      </div>
+      <div class="sm-form-row">
+        <div class="sm-field"><label>Valor total (R$) *</label><input value="0,00" /></div>
+        <div class="sm-field"><label>Hóspedes</label><input value="1" /></div>
+      </div>
+      <div class="sm-btn-confirm">Salvar reserva</div>
+    </div>
+  </div>
+
+  <!-- Central glass card -->
+  <div class="center-card">
+    <div class="cpill"><span class="cpill-dot"></span> Plataforma completa de gestão</div>
+    <div class="cbrand">
+      <svg width="54" height="54" viewBox="0 0 120 120" fill="none"><path d="M60 14 C70 14,78 18,86 26 L102 42 C106 46,108 52,108 58 L108 92 C108 100,102 106,94 106 L26 106 C18 106,12 100,12 92 L12 58 C12 52,14 46,18 42 L34 26 C42 18,50 14,60 14Z" fill="#FFF8EC" opacity=".92"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#F97316"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#F97316" opacity=".5"/></svg>
+      <div class="cwm">Rent<span>Flow</span></div>
+    </div>
+    <h1 class="ch1">Simplifique a <em>Gestão</em><br>do seu <em>Aluguel</em></h1>
+    <p class="cp">Todas suas reservas no seu bolso —<br>Airbnb, Booking e diretas em um só lugar.</p>
+    <div class="cstats">
+      <div class="cstat"><div class="cv orange">R$ 8.400</div><div class="cl">Receita mensal</div></div>
+      <div class="cstat"><div class="cv yellow">3</div><div class="cl">Imóveis</div></div>
+      <div class="cstat"><div class="cv green">12</div><div class="cl">Reservas</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Detecta retorno do link de redefinição de senha (evento PASSWORD_RECOVERY)
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      showPanel('reset');
+    }
+  });
+
+  // Redireciona se já está logado (ignora se vier do link de reset)
+  (async () => {
+    const hash = window.location.hash;
+    const isRecovery = hash.includes('type=recovery');
+    if (isRecovery) return;
+    const { data: { session } } = await db.auth.getSession();
+    if (session) window.location.href = 'index.html';
+  })();
+
+  function setupCapsLock(inputId, warnId) {
+    const input = document.getElementById(inputId);
+    const warn  = document.getElementById(warnId);
+    input.addEventListener('keyup', e => {
+      warn.classList.toggle('visible', e.getModifierState('CapsLock'));
+    });
+    input.addEventListener('focus', e => {
+      warn.classList.toggle('visible', e.getModifierState('CapsLock'));
+    });
+    input.addEventListener('blur', () => warn.classList.remove('visible'));
+  }
+
+  setupCapsLock('loginPassword', 'capsWarnLogin');
+  setupCapsLock('regPassword',   'capsWarnReg');
+
+  const ALL_PANELS = ['login', 'register', 'forgot', 'reset'];
+
+  function showPanel(name) {
+    const isAuthPanel = name === 'login' || name === 'register';
+    document.getElementById('loginTabs').style.display = isAuthPanel ? '' : 'none';
+    ALL_PANELS.forEach(p => {
+      document.getElementById('panel' + p.charAt(0).toUpperCase() + p.slice(1)).style.display =
+        p === name ? '' : 'none';
+    });
+    if (isAuthPanel) {
+      document.getElementById('tabLogin').classList.toggle('active', name === 'login');
+      document.getElementById('tabRegister').classList.toggle('active', name === 'register');
+    }
+  }
+
+  function switchTab(tab) {
+    showPanel(tab);
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.classList.toggle('loading', loading);
+    btn.disabled = loading;
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.style.cssText = '';
+    el.classList.add('visible');
+  }
+
+  function clearError(id) {
+    document.getElementById(id).classList.remove('visible');
+  }
+
+  function showSuccess(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+
+  function clearSuccess(id) {
+    document.getElementById(id).classList.remove('visible');
+  }
+
+  let _loginAttempts = 0;
+  let _loginLockedUntil = 0;
+
+  async function handleLogin() {
+    clearError('loginError');
+
+    const now = Date.now();
+    if (now < _loginLockedUntil) {
+      const remaining = Math.ceil((_loginLockedUntil - now) / 1000);
+      showError('loginError', `Muitas tentativas. Aguarde ${remaining} segundos.`);
+      return;
+    }
+
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) { showError('loginError', 'Preencha e-mail e senha.'); return; }
+
+    setLoading('btnLogin', true);
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    setLoading('btnLogin', false);
+
+    if (error) {
+      _loginAttempts++;
+      if (_loginAttempts >= 5) {
+        _loginLockedUntil = Date.now() + 30000;
+        _loginAttempts = 0;
+        showError('loginError', 'Muitas tentativas incorretas. Aguarde 30 segundos.');
+        return;
+      }
+      const msgs = {
+        'Invalid login credentials': 'E-mail ou senha incorretos.',
+        'Email not confirmed': 'Confirme seu e-mail antes de entrar.',
+      };
+      showError('loginError', msgs[error.message] || 'Falha ao autenticar. Tente novamente.');
+      return;
+    }
+
+    _loginAttempts = 0;
+    window.location.href = 'index.html';
+  }
+
+  function maskPhone(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 11);
+    if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d*)$/, '($1) $2-$3');
+    else if (v.length > 2) v = v.replace(/^(\d{2})(\d*)$/, '($1) $2');
+    else if (v.length > 0) v = v.replace(/^(\d*)$/, '($1');
+    el.value = v;
+  }
+
+  async function handleRegister() {
+    clearError('regError');
+    const firstName = document.getElementById('regFirstName').value.trim();
+    const lastName  = document.getElementById('regLastName').value.trim();
+    const phone     = document.getElementById('regPhone').value.trim();
+    const email     = document.getElementById('regEmail').value.trim();
+    const password  = document.getElementById('regPassword').value;
+    const confirm   = document.getElementById('regConfirm').value;
+
+    if (!firstName)          { showError('regError', 'Preencha seu nome.'); return; }
+    if (!lastName)           { showError('regError', 'Preencha seu sobrenome.'); return; }
+    if (!phone)              { showError('regError', 'Preencha seu número de celular.'); return; }
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 10)  { showError('regError', 'Número de celular inválido.'); return; }
+    if (!email || !password) { showError('regError', 'Preencha todos os campos.'); return; }
+    if (password.length < 6) { showError('regError', 'A senha deve ter pelo menos 6 caracteres.'); return; }
+    if (password !== confirm) { showError('regError', 'As senhas não coincidem.'); return; }
+
+    const fullName = `${firstName} ${lastName}`;
+    setLoading('btnRegister', true);
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName, first_name: firstName, last_name: lastName, phone_number: phone } }
+    });
+    setLoading('btnRegister', false);
+
+    if (error) {
+      const msgs = { 'User already registered': 'Este e-mail já está cadastrado. Faça login.' };
+      showError('regError', msgs[error.message] || 'Erro ao criar conta. Tente novamente.');
+      return;
+    }
+
+    // Supabase retorna identities[] vazio quando o e-mail já existe (confirmação ativada)
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      showError('regError', 'Este e-mail já está cadastrado. Por favor, faça login.');
+      return;
+    }
+
+    // Tenta logar direto (se confirmação de e-mail estiver desabilitada no Supabase)
+    const { error: loginErr } = await db.auth.signInWithPassword({ email, password });
+    if (!loginErr) { window.location.href = 'index.html'; return; }
+
+    // Se precisar confirmar e-mail
+    showSuccess('regError', 'Conta criada! Verifique seu e-mail para confirmar.');
+    document.getElementById('regError').style.display = 'block';
+    document.getElementById('regError').style.background = 'rgba(52,201,126,.08)';
+    document.getElementById('regError').style.borderColor = 'rgba(52,201,126,.3)';
+    document.getElementById('regError').style.color = '#0e8a44';
+    document.getElementById('regError').classList.add('visible');
+  }
+
+  async function handleForgotPassword() {
+    clearError('forgotError');
+    clearSuccess('forgotSuccess');
+    const email = document.getElementById('forgotEmail').value.trim();
+
+    if (!email) { showError('forgotError', 'Informe seu e-mail.'); return; }
+
+    setLoading('btnForgot', true);
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+    setLoading('btnForgot', false);
+
+    if (error) {
+      showError('forgotError', 'Erro ao enviar o link. Verifique o e-mail e tente novamente.');
+      return;
+    }
+
+    showSuccess('forgotSuccess', 'Link enviado! Verifique seu e-mail e clique no link para redefinir sua senha.');
+    document.getElementById('btnForgot').disabled = true;
+  }
+
+  async function handleSetNewPassword() {
+    clearError('resetError');
+    clearSuccess('resetSuccess');
+    const password = document.getElementById('resetPassword').value;
+    const confirm  = document.getElementById('resetConfirm').value;
+
+    if (!password)           { showError('resetError', 'Digite a nova senha.'); return; }
+    if (password.length < 6) { showError('resetError', 'A senha deve ter pelo menos 6 caracteres.'); return; }
+    if (password !== confirm) { showError('resetError', 'As senhas não coincidem.'); return; }
+
+    setLoading('btnReset', true);
+    const { error } = await db.auth.updateUser({ password });
+    setLoading('btnReset', false);
+
+    if (error) {
+      showError('resetError', 'Erro ao atualizar senha. Tente novamente.');
+      return;
+    }
+
+    showSuccess('resetSuccess', 'Senha atualizada com sucesso! Redirecionando...');
+    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+  }
+</script>
+</body>
+</html>

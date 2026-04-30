@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu Perfil — RentFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="variables.css" />
+  <link rel="stylesheet" href="profile.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="services/supabaseClient.js"></script>
+</head>
+<body>
+
+  <!-- LOADING -->
+  <div id="loadingOverlay">
+    <svg class="breathe" width="48" height="48" viewBox="0 0 120 120" fill="none"><path d="M60 14 C 70 14, 78 18, 86 26 L 102 42 C 106 46, 108 52, 108 58 L 108 92 C 108 100, 102 106, 94 106 L 26 106 C 18 106, 12 100, 12 92 L 12 58 C 12 52, 14 46, 18 42 L 34 26 C 42 18, 50 14, 60 14 Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/></svg>
+    <span>Carregando...</span>
+  </div>
+
+  <!-- HEADER -->
+  <header class="prf-header">
+    <button class="prf-back" onclick="window.location.href='index.html'">← Voltar</button>
+    <div class="prf-logo">
+      <svg width="28" height="28" viewBox="0 0 120 120" fill="none"><path d="M60 14 C 70 14, 78 18, 86 26 L 102 42 C 106 46, 108 52, 108 58 L 108 92 C 108 100, 102 106, 94 106 L 26 106 C 18 106, 12 100, 12 92 L 12 58 C 12 52, 14 46, 18 42 L 34 26 C 42 18, 50 14, 60 14 Z" fill="#F97316"/><rect x="28" y="58" width="64" height="8" rx="3" fill="#FFF8EC"/><rect x="28" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="60" y="72" width="12" height="10" rx="2" fill="#FACC15"/><rect x="76" y="72" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="28" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="44" y="86" width="12" height="10" rx="2" fill="#2563EB"/><rect x="60" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/><rect x="76" y="86" width="12" height="10" rx="2" fill="#FFF8EC" opacity=".55"/></svg>
+      <span>Rent<span style="color:#F97316">Flow</span></span>
+    </div>
+    <span class="prf-header-title">Meu Perfil</span>
+  </header>
+
+  <!-- MAIN -->
+  <main class="prf-main">
+
+    <!-- Avatar + nome resumido -->
+    <div class="prf-hero">
+      <div class="prf-avatar" id="prfAvatar">?</div>
+      <div class="prf-hero-info">
+        <div class="prf-hero-name" id="prfHeroName">—</div>
+        <div class="prf-hero-email" id="prfHeroEmail">—</div>
+      </div>
+    </div>
+
+    <!-- Card: Dados Pessoais -->
+    <section class="prf-card">
+      <div class="prf-card-header">
+        <span class="prf-card-icon">👤</span>
+        <span class="prf-card-title">Dados Pessoais</span>
+      </div>
+
+      <div class="prf-form-grid">
+        <div class="prf-field">
+          <label class="prf-label">Nome</label>
+          <input class="prf-input" id="firstName" type="text" placeholder="Seu nome" maxlength="60" />
+        </div>
+        <div class="prf-field">
+          <label class="prf-label">Sobrenome</label>
+          <input class="prf-input" id="lastName" type="text" placeholder="Seu sobrenome" maxlength="60" />
+        </div>
+        <div class="prf-field prf-field-full">
+          <label class="prf-label">E-mail <span class="prf-readonly-badge">somente leitura</span></label>
+          <input class="prf-input prf-input-readonly" id="userEmail" type="email" readonly />
+        </div>
+      </div>
+
+      <div class="prf-card-footer">
+        <button class="prf-btn-save" id="btnSaveProfile" onclick="saveProfile()">Salvar dados</button>
+      </div>
+    </section>
+
+    <!-- Card: Segurança -->
+    <section class="prf-card">
+      <div class="prf-card-header">
+        <span class="prf-card-icon">🔒</span>
+        <span class="prf-card-title">Segurança</span>
+      </div>
+
+      <div class="prf-form-grid">
+        <div class="prf-field prf-field-full">
+          <label class="prf-label">Senha atual <span style="color:var(--danger,#ef4444)">*</span></label>
+          <div class="prf-input-wrap">
+            <input class="prf-input" id="currentPassword" type="password" placeholder="Digite sua senha atual" maxlength="128" autocomplete="current-password" />
+            <button class="prf-eye" type="button" onclick="togglePwd('currentPassword', this)" title="Mostrar/ocultar">👁</button>
+          </div>
+        </div>
+        <div class="prf-field prf-field-full">
+          <label class="prf-label">Nova senha <span style="color:var(--danger,#ef4444)">*</span></label>
+          <div class="prf-input-wrap">
+            <input class="prf-input" id="newPassword" type="password" placeholder="Mínimo 6 caracteres" maxlength="128" autocomplete="new-password" />
+            <button class="prf-eye" type="button" onclick="togglePwd('newPassword', this)" title="Mostrar/ocultar">👁</button>
+          </div>
+        </div>
+        <div class="prf-field prf-field-full">
+          <label class="prf-label">Confirmar nova senha <span style="color:var(--danger,#ef4444)">*</span></label>
+          <div class="prf-input-wrap">
+            <input class="prf-input" id="confirmPassword" type="password" placeholder="Repita a nova senha" maxlength="128" autocomplete="new-password" />
+            <button class="prf-eye" type="button" onclick="togglePwd('confirmPassword', this)" title="Mostrar/ocultar">👁</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="prf-card-footer">
+        <button class="prf-btn-save" id="btnSavePassword" onclick="savePassword()">Alterar senha</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="prf-toast" id="toast"></div>
+
+  <script src="profile.js"></script>
+</body>
+</html>
