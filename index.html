@@ -1855,7 +1855,8 @@
         .select('token')
         .single();
       if (error) throw error;
-      const link = `${window.location.origin}/tenant-form.html?token=${data.token}`;
+      const base = window.location.href.replace(/\/[^/]*$/, '');
+      const link = `${base}/tenant-form.html?token=${data.token}`;
       document.getElementById('tenantLinkUrl').value = link;
       document.getElementById('modalTenantLink').classList.add('open');
     } catch (err) {
