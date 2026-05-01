@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    perfil.css — Dashboard Analítico RentFlow
    ============================================================ */
 
@@ -261,7 +261,6 @@
   .chart-card  { padding: 12px 10px 4px; }
   .chart-title { font-size: 13px; }
   .chart-desc  { font-size: 11px; margin-top: 2px; }
-<<<<<<< HEAD
 }
 
 /* ── INQUILINOS ── */
@@ -396,6 +395,4 @@
   .tenants-table td:nth-child(2),
   .tenants-table th:nth-child(4),
   .tenants-table td:nth-child(4) { display: none; }
-=======
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 }

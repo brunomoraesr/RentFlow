@@ -1,4 +1,4 @@
-// services/cities.js — Seletor inteligente de cidades brasileiras (API IBGE + fallback estático)
+﻿// services/cities.js — Seletor inteligente de cidades brasileiras (API IBGE + fallback estático)
 
 // ── Fallback estático: capitais + maiores municípios ─────────────────────────
 const _STATIC_CITIES = [
@@ -39,11 +39,7 @@ const _STATIC_CITIES = [
   {name:"Angra dos Reis",uf:"RJ"},{name:"Resende",uf:"RJ"},{name:"Cabo Frio",uf:"RJ"},
   {name:"Armação dos Búzios",uf:"RJ"},{name:"Arraial do Cabo",uf:"RJ"},
   {name:"Paraty",uf:"RJ"},{name:"Teresópolis",uf:"RJ"},{name:"Queimados",uf:"RJ"},
-<<<<<<< HEAD
   // MG - maiores + históricas
-=======
-  // MG - maiores
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   {name:"Uberlândia",uf:"MG"},{name:"Contagem",uf:"MG"},{name:"Juiz de Fora",uf:"MG"},
   {name:"Betim",uf:"MG"},{name:"Montes Claros",uf:"MG"},{name:"Ribeirão das Neves",uf:"MG"},
   {name:"Uberaba",uf:"MG"},{name:"Governador Valadares",uf:"MG"},{name:"Ipatinga",uf:"MG"},
@@ -53,13 +49,9 @@ const _STATIC_CITIES = [
   {name:"Alfenas",uf:"MG"},{name:"Varginha",uf:"MG"},{name:"Lavras",uf:"MG"},
   {name:"Itajubá",uf:"MG"},{name:"Conselheiro Lafaiete",uf:"MG"},{name:"Ouro Preto",uf:"MG"},
   {name:"Mariana",uf:"MG"},{name:"Diamantina",uf:"MG"},{name:"Manhuaçu",uf:"MG"},
-<<<<<<< HEAD
   {name:"Tiradentes",uf:"MG"},{name:"São João del-Rei",uf:"MG"},{name:"Congonhas",uf:"MG"},
   {name:"Serro",uf:"MG"},{name:"Catas Altas",uf:"MG"},{name:"Conceição do Mato Dentro",uf:"MG"},
   // RS - maiores + turísticas
-=======
-  // RS - maiores
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   {name:"Caxias do Sul",uf:"RS"},{name:"Canoas",uf:"RS"},{name:"Pelotas",uf:"RS"},
   {name:"Santa Maria",uf:"RS"},{name:"Gravataí",uf:"RS"},{name:"Viamão",uf:"RS"},
   {name:"Novo Hamburgo",uf:"RS"},{name:"São Leopoldo",uf:"RS"},{name:"Passo Fundo",uf:"RS"},
@@ -68,11 +60,8 @@ const _STATIC_CITIES = [
   {name:"Bento Gonçalves",uf:"RS"},{name:"Erechim",uf:"RS"},{name:"Lajeado",uf:"RS"},
   {name:"Farroupilha",uf:"RS"},{name:"Gramado",uf:"RS"},{name:"Canela",uf:"RS"},
   {name:"Torres",uf:"RS"},{name:"Tramandaí",uf:"RS"},{name:"Capão da Canoa",uf:"RS"},
-<<<<<<< HEAD
   {name:"Xangri-lá",uf:"RS"},{name:"Imbé",uf:"RS"},{name:"Arroio do Sal",uf:"RS"},
   {name:"São Francisco de Paula",uf:"RS"},{name:"Nova Petrópolis",uf:"RS"},
-=======
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   // PR - maiores
   {name:"Londrina",uf:"PR"},{name:"Maringá",uf:"PR"},{name:"Ponta Grossa",uf:"PR"},
   {name:"Cascavel",uf:"PR"},{name:"São José dos Pinhais",uf:"PR"},{name:"Foz do Iguaçu",uf:"PR"},
@@ -81,11 +70,7 @@ const _STATIC_CITIES = [
   {name:"Pinhais",uf:"PR"},{name:"Campo Largo",uf:"PR"},{name:"Almirante Tamandaré",uf:"PR"},
   {name:"Umuarama",uf:"PR"},{name:"Marechal Cândido Rondon",uf:"PR"},{name:"Sarandi",uf:"PR"},
   {name:"Pato Branco",uf:"PR"},{name:"Francisco Beltrão",uf:"PR"},
-<<<<<<< HEAD
   // SC - maiores + turísticas
-=======
-  // SC - maiores
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   {name:"Joinville",uf:"SC"},{name:"Blumenau",uf:"SC"},{name:"São José",uf:"SC"},
   {name:"Chapecó",uf:"SC"},{name:"Itajaí",uf:"SC"},{name:"Criciúma",uf:"SC"},
   {name:"Jaraguá do Sul",uf:"SC"},{name:"Palhoça",uf:"SC"},{name:"Balneário Camboriú",uf:"SC"},
@@ -93,21 +78,16 @@ const _STATIC_CITIES = [
   {name:"Brusque",uf:"SC"},{name:"Tubarão",uf:"SC"},{name:"Caçador",uf:"SC"},
   {name:"Concórdia",uf:"SC"},{name:"São Bento do Sul",uf:"SC"},{name:"Araranguá",uf:"SC"},
   {name:"Navegantes",uf:"SC"},{name:"Penha",uf:"SC"},
-<<<<<<< HEAD
   {name:"Bombinhas",uf:"SC"},{name:"Garopaba",uf:"SC"},{name:"Imbituba",uf:"SC"},
   {name:"Laguna",uf:"SC"},{name:"Governador Celso Ramos",uf:"SC"},{name:"Porto Belo",uf:"SC"},
   {name:"Itapema",uf:"SC"},{name:"Piçarras",uf:"SC"},
   // BA - maiores + turísticas
-=======
-  // BA - maiores
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   {name:"Feira de Santana",uf:"BA"},{name:"Vitória da Conquista",uf:"BA"},{name:"Camaçari",uf:"BA"},
   {name:"Itabuna",uf:"BA"},{name:"Juazeiro",uf:"BA"},{name:"Lauro de Freitas",uf:"BA"},
   {name:"Ilhéus",uf:"BA"},{name:"Jequié",uf:"BA"},{name:"Barreiras",uf:"BA"},
   {name:"Alagoinhas",uf:"BA"},{name:"Porto Seguro",uf:"BA"},{name:"Paulo Afonso",uf:"BA"},
   {name:"Simões Filho",uf:"BA"},{name:"Teixeira de Freitas",uf:"BA"},{name:"Candeias",uf:"BA"},
   {name:"Santo Antônio de Jesus",uf:"BA"},{name:"Valença",uf:"BA"},
-<<<<<<< HEAD
   {name:"Itacaré",uf:"BA"},{name:"Cairu",uf:"BA"},{name:"Maraú",uf:"BA"},
   {name:"Belmonte",uf:"BA"},{name:"Mucuri",uf:"BA"},{name:"Santa Cruz Cabrália",uf:"BA"},
   {name:"Lençóis",uf:"BA"},{name:"Cachoeira",uf:"BA"},{name:"Morro de São Paulo",uf:"BA"},
@@ -124,36 +104,19 @@ const _STATIC_CITIES = [
   {name:"Cabo de Santo Agostinho",uf:"PE"},{name:"Camaragibe",uf:"PE"},{name:"Garanhuns",uf:"PE"},
   {name:"Ipojuca",uf:"PE"},{name:"Fernando de Noronha",uf:"PE"},{name:"Sirinhaém",uf:"PE"},
   {name:"Tamandaré",uf:"PE"},
-=======
-  // CE - maiores
-  {name:"Caucaia",uf:"CE"},{name:"Juazeiro do Norte",uf:"CE"},{name:"Maracanaú",uf:"CE"},
-  {name:"Sobral",uf:"CE"},{name:"Crato",uf:"CE"},{name:"Itapipoca",uf:"CE"},
-  {name:"Maranguape",uf:"CE"},{name:"Iguatu",uf:"CE"},{name:"Quixadá",uf:"CE"},
-  // PE - maiores
-  {name:"Caruaru",uf:"PE"},{name:"Olinda",uf:"PE"},{name:"Jaboatão dos Guararapes",uf:"PE"},
-  {name:"Paulista",uf:"PE"},{name:"Petrolina",uf:"PE"},{name:"Caruaru",uf:"PE"},
-  {name:"Cabo de Santo Agostinho",uf:"PE"},{name:"Camaragibe",uf:"PE"},{name:"Garanhuns",uf:"PE"},
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   // PA - maiores
   {name:"Ananindeua",uf:"PA"},{name:"Santarém",uf:"PA"},{name:"Marabá",uf:"PA"},
   {name:"Parauapebas",uf:"PA"},{name:"Castanhal",uf:"PA"},{name:"Altamira",uf:"PA"},
   // MA - maiores
   {name:"Imperatriz",uf:"MA"},{name:"Timon",uf:"MA"},{name:"Caxias",uf:"MA"},
   {name:"Codó",uf:"MA"},{name:"Açailândia",uf:"MA"},
-<<<<<<< HEAD
   // GO - maiores + turísticas
-=======
-  // GO - maiores
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   {name:"Aparecida de Goiânia",uf:"GO"},{name:"Anápolis",uf:"GO"},{name:"Rio Verde",uf:"GO"},
   {name:"Luziânia",uf:"GO"},{name:"Águas Lindas de Goiás",uf:"GO"},{name:"Valparaíso de Goiás",uf:"GO"},
   {name:"Trindade",uf:"GO"},{name:"Formosa",uf:"GO"},{name:"Catalão",uf:"GO"},
   {name:"Caldas Novas",uf:"GO"},{name:"Itumbiara",uf:"GO"},
-<<<<<<< HEAD
   {name:"Pirenópolis",uf:"GO"},{name:"Alto Paraíso de Goiás",uf:"GO"},{name:"Cavalcante",uf:"GO"},
   {name:"São Jorge",uf:"GO"},
-=======
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   // AM - maiores
   {name:"Parintins",uf:"AM"},{name:"Itacoatiara",uf:"AM"},{name:"Tefé",uf:"AM"},
   // ES - maiores
@@ -166,7 +129,6 @@ const _STATIC_CITIES = [
   // MS - maiores
   {name:"Dourados",uf:"MS"},{name:"Três Lagoas",uf:"MS"},{name:"Corumbá",uf:"MS"},
   {name:"Grande Dourados",uf:"MS"},{name:"Ponta Porã",uf:"MS"},
-<<<<<<< HEAD
   // RN - maiores + turísticas
   {name:"Mossoró",uf:"RN"},{name:"Parnamirim",uf:"RN"},{name:"Caicó",uf:"RN"},
   {name:"Açu",uf:"RN"},{name:"Macaíba",uf:"RN"},
@@ -180,15 +142,6 @@ const _STATIC_CITIES = [
   {name:"Parnaíba",uf:"PI"},{name:"Picos",uf:"PI"},{name:"Floriano",uf:"PI"},
   {name:"Luís Correia",uf:"PI"},{name:"Cajueiro da Praia",uf:"PI"},{name:"Ilha Grande",uf:"PI"},
   {name:"Buriti dos Lopes",uf:"PI"},
-=======
-  // RN - maiores
-  {name:"Mossoró",uf:"RN"},{name:"Parnamirim",uf:"RN"},{name:"Caicó",uf:"RN"},
-  {name:"Açu",uf:"RN"},{name:"Macaíba",uf:"RN"},
-  // AL - maiores
-  {name:"Arapiraca",uf:"AL"},{name:"Palmeira dos Índios",uf:"AL"},{name:"União dos Palmares",uf:"AL"},
-  // PI - maiores
-  {name:"Parnaíba",uf:"PI"},{name:"Picos",uf:"PI"},{name:"Floriano",uf:"PI"},
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
   // PB - maiores
   {name:"Campina Grande",uf:"PB"},{name:"Santa Rita",uf:"PB"},{name:"Patos",uf:"PB"},
   // RO - maiores

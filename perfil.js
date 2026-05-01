@@ -1,4 +1,4 @@
-/**
+﻿/**
  * perfil.js — Dashboard Analítico RentFlow
  *
  * Fluxo:  Supabase → JavaScript (cálculo) → ApexCharts (gráficos)
@@ -688,7 +688,6 @@ function onFilterChange() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-<<<<<<< HEAD
 // INQUILINOS
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadTenants() {
@@ -810,7 +809,5 @@ function escHtml(str) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-=======
->>>>>>> ceb19e192b09f9af03a4dfbfe28ea0578f34d024
 init();
 //
